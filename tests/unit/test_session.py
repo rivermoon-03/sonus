@@ -1,83 +1,197 @@
+from collections import deque
+
 import pytest
 
-from sonus.protocol.framing import Frame, encode_frame
+from sonus.protocol.framing import (
+    DATA_TYPE_ACK,
+    DATA_TYPE_MDR,
+    decode_frame,
+    encode_frame,
+)
 from sonus.protocol.session import ProtocolSession, ProtocolTimeoutError
 
 
 class FakeTransport:
-    """Records sent bytes; returns scripted responses or raises TimeoutError."""
-
-    def __init__(self, responses):
+    def __init__(self, chunks):
         self.sent = []
-        self._responses = list(responses)
+        self._chunks = deque(chunks)
 
     def send(self, data: bytes) -> None:
         self.sent.append(data)
 
     def recv(self, bufsize: int, timeout: float) -> bytes:
-        if not self._responses:
-            raise TimeoutError("no more scripted responses")
-        response = self._responses.pop(0)
-        if response is None:
+        if not self._chunks:
+            raise TimeoutError("no scripted data")
+        chunk = self._chunks.popleft()
+        if chunk is None:
             raise TimeoutError("scripted timeout")
-        return response
+        return chunk
 
 
-def test_request_sends_encoded_frame_with_seq_zero_first():
-    transport = FakeTransport([encode_frame(seq=0, msg_type=0x01, payload=b"\xaa")])
+def test_request_handles_ack_and_response_in_one_recv():
+    ack = encode_frame(DATA_TYPE_ACK, 1)
+    response = encode_frame(DATA_TYPE_MDR, 1, b"\x01\x00")
+    transport = FakeTransport([ack + response])
+
+    result = ProtocolSession(transport).request(DATA_TYPE_MDR, b"\x00\x00")
+
+    assert result.payload == b"\x01\x00"
+    assert decode_frame(transport.sent[0]).payload == b"\x00\x00"
+    assert decode_frame(transport.sent[1]).data_type == DATA_TYPE_ACK
+    assert decode_frame(transport.sent[1]).seq == 0
+
+
+def test_request_acknowledges_and_queues_data_after_ack_in_same_recv():
+    ack = encode_frame(DATA_TYPE_ACK, 1)
+    response = encode_frame(DATA_TYPE_MDR, 1, b"\x01\x00")
+    notification = encode_frame(DATA_TYPE_MDR, 1, b"\xc9\x01")
+    transport = FakeTransport([ack + response + notification])
     session = ProtocolSession(transport)
 
-    session.request(msg_type=0x02, payload=b"\x01")
+    result = session.request(DATA_TYPE_MDR, b"\x00\x00")
+
+    assert result.payload == b"\x01\x00"
+    assert [frame.payload for frame in session.pop_notifications()] == [b"\xc9\x01"]
+    sent = [decode_frame(raw) for raw in transport.sent]
+    assert [(frame.data_type, frame.seq) for frame in sent] == [
+        (DATA_TYPE_MDR, 0),
+        (DATA_TYPE_ACK, 0),
+        (DATA_TYPE_ACK, 0),
+    ]
+
+
+def test_request_drains_queued_notification_before_next_request():
+    ack1 = encode_frame(DATA_TYPE_ACK, 1)
+    response1 = encode_frame(DATA_TYPE_MDR, 1, b"\x01\x00")
+    notification = encode_frame(DATA_TYPE_MDR, 1, b"\xc9\x01")
+    ack2 = encode_frame(DATA_TYPE_ACK, 0)
+    response2 = encode_frame(DATA_TYPE_MDR, 0, b"\x03\x00")
+    transport = FakeTransport([ack1, response1 + notification, ack2, response2])
+    session = ProtocolSession(transport)
+
+    first = session.request(DATA_TYPE_MDR, b"\x00\x00")
+
+    assert first.payload == b"\x01\x00"
+    assert [frame.payload for frame in session.pop_notifications()] == [b"\xc9\x01"]
+    assert session.request(DATA_TYPE_MDR, b"\x02\x00").payload == b"\x03\x00"
+
+
+def test_request_reassembles_a_response_split_across_recvs():
+    ack = encode_frame(DATA_TYPE_ACK, 1)
+    response = encode_frame(DATA_TYPE_MDR, 1, b"\x01\x00")
+    split = len(response) - 2
+    transport = FakeTransport([ack + response[:split], response[split:]])
+
+    result = ProtocolSession(transport).request(DATA_TYPE_MDR, b"\x00\x00")
+
+    assert result.payload == b"\x01\x00"
+    assert [(frame.data_type, frame.seq) for frame in map(decode_frame, transport.sent)] == [
+        (DATA_TYPE_MDR, 0),
+        (DATA_TYPE_ACK, 0),
+    ]
+
+
+def test_request_retains_matching_response_received_before_ack():
+    response = encode_frame(DATA_TYPE_MDR, 1, b"\x01\x00")
+    ack = encode_frame(DATA_TYPE_ACK, 1)
+    transport = FakeTransport([response, ack])
+
+    result = ProtocolSession(transport).request(DATA_TYPE_MDR, b"\x00\x00")
+
+    assert result.payload == b"\x01\x00"
+    assert [(frame.data_type, frame.seq) for frame in map(decode_frame, transport.sent)] == [
+        (DATA_TYPE_MDR, 0),
+        (DATA_TYPE_ACK, 0),
+    ]
+
+
+def test_request_queues_notification_before_matching_response():
+    notification = encode_frame(DATA_TYPE_MDR, 1, b"\xc9\x01")
+    ack = encode_frame(DATA_TYPE_ACK, 1)
+    response = encode_frame(DATA_TYPE_MDR, 1, b"\x01\x00")
+    transport = FakeTransport([notification, ack, response])
+    session = ProtocolSession(transport)
+
+    result = session.request(
+        DATA_TYPE_MDR,
+        b"\x00\x00",
+        response_matcher=lambda frame: frame.payload.startswith(b"\x01"),
+    )
+
+    assert result.payload == b"\x01\x00"
+    assert [frame.payload for frame in session.pop_notifications()] == [b"\xc9\x01"]
+    assert session.pop_notifications() == []
+    sent = [decode_frame(raw) for raw in transport.sent]
+    assert [(frame.data_type, frame.seq) for frame in sent[1:]] == [
+        (DATA_TYPE_ACK, 0),
+        (DATA_TYPE_ACK, 0),
+    ]
+
+
+def test_request_retries_only_while_waiting_for_ack():
+    ack = encode_frame(DATA_TYPE_ACK, 1)
+    response = encode_frame(DATA_TYPE_MDR, 1, b"\x01")
+    transport = FakeTransport([None, ack, response])
+
+    ProtocolSession(transport, retries=1).request(DATA_TYPE_MDR, b"\x00")
+
+    requests = [
+        decode_frame(raw)
+        for raw in transport.sent
+        if decode_frame(raw).data_type != DATA_TYPE_ACK
+    ]
+    assert len(requests) == 2
+    assert requests[0] == requests[1]
+
+
+def test_request_retries_when_matching_ack_has_a_payload():
+    malformed_ack = encode_frame(DATA_TYPE_ACK, 1, b"\x00")
+    ack = encode_frame(DATA_TYPE_ACK, 1)
+    response = encode_frame(DATA_TYPE_MDR, 1, b"\x01")
+    transport = FakeTransport([malformed_ack, None, ack, response])
+
+    result = ProtocolSession(transport, retries=1).request(DATA_TYPE_MDR, b"\x00")
+
+    assert result.payload == b"\x01"
+    requests = [
+        decode_frame(raw)
+        for raw in transport.sent
+        if decode_frame(raw).data_type != DATA_TYPE_ACK
+    ]
+    assert len(requests) == 2
+
+
+def test_response_timeout_after_ack_does_not_resend_request():
+    transport = FakeTransport([encode_frame(DATA_TYPE_ACK, 1), None])
+    session = ProtocolSession(transport, retries=2)
+
+    with pytest.raises(ProtocolTimeoutError, match="response"):
+        session.request(DATA_TYPE_MDR, b"\x00")
 
     assert len(transport.sent) == 1
-    from sonus.protocol.framing import decode_frame
-
-    sent_frame = decode_frame(transport.sent[0])
-    assert sent_frame.seq == 0
-    assert sent_frame.msg_type == 0x02
-    assert sent_frame.payload == b"\x01"
 
 
-def test_request_increments_sequence_across_calls():
+def test_closed_transport_error_is_preserved():
+    session = ProtocolSession(FakeTransport([b""]))
+
+    with pytest.raises(ConnectionError, match="closed"):
+        session.request(DATA_TYPE_MDR, b"\x00")
+
+
+def test_successful_requests_toggle_sequence_between_zero_and_one():
     transport = FakeTransport(
         [
-            encode_frame(seq=0, msg_type=0x01, payload=b""),
-            encode_frame(seq=1, msg_type=0x01, payload=b""),
+            encode_frame(DATA_TYPE_ACK, 1),
+            encode_frame(DATA_TYPE_MDR, 1, b"\x01"),
+            encode_frame(DATA_TYPE_ACK, 0),
+            encode_frame(DATA_TYPE_MDR, 0, b"\x03"),
         ]
     )
     session = ProtocolSession(transport)
 
-    session.request(msg_type=0x02)
-    session.request(msg_type=0x02)
+    session.request(DATA_TYPE_MDR, b"\x00")
+    session.request(DATA_TYPE_MDR, b"\x02")
 
-    from sonus.protocol.framing import decode_frame
-
-    seqs = [decode_frame(sent).seq for sent in transport.sent]
-    assert seqs == [0, 1]
-
-
-def test_request_returns_decoded_response_frame():
-    transport = FakeTransport([encode_frame(seq=0, msg_type=0x81, payload=b"\x99")])
-    session = ProtocolSession(transport)
-
-    response = session.request(msg_type=0x01)
-
-    assert response == Frame(seq=0, msg_type=0x81, payload=b"\x99")
-
-
-def test_request_retries_on_timeout_then_succeeds():
-    transport = FakeTransport([None, encode_frame(seq=0, msg_type=0x81, payload=b"")])
-    session = ProtocolSession(transport, retries=2)
-
-    response = session.request(msg_type=0x01)
-
-    assert response.msg_type == 0x81
-    assert len(transport.sent) == 2  # resent once after the timeout
-
-
-def test_request_raises_after_exhausting_retries():
-    transport = FakeTransport([None, None])
-    session = ProtocolSession(transport, retries=1)
-
-    with pytest.raises(ProtocolTimeoutError):
-        session.request(msg_type=0x01)
+    sent = [decode_frame(raw) for raw in transport.sent]
+    request_seqs = [frame.seq for frame in sent if frame.data_type == DATA_TYPE_MDR]
+    assert request_seqs == [0, 1]

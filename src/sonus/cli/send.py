@@ -9,17 +9,17 @@ def run_send(
     mac: str,
     channel: int,
     *,
-    msg_type: int,
+    data_type: int,
     payload_hex: str,
     connect_fn=default_connect,
+    session_factory=ProtocolSession,
 ) -> str:
     connection = connect_fn(mac, channel)
     try:
-        session = ProtocolSession(connection)
-        payload = bytes.fromhex(payload_hex)
-        response = session.request(msg_type=msg_type, payload=payload)
+        session = session_factory(connection)
+        response = session.request(data_type=data_type, payload=bytes.fromhex(payload_hex))
         return (
-            f"Response: msg_type={response.msg_type:#04x} "
+            f"Response: data_type={response.data_type:#04x} "
             f"seq={response.seq} payload={response.payload.hex()}"
         )
     finally:

@@ -1,36 +1,31 @@
-# tests/unit/test_cli_send.py
-from sonus.protocol.framing import encode_frame
 from sonus.cli.send import run_send
+from sonus.protocol.framing import DATA_TYPE_MDR, Frame
 
 
-class _FakeConnection:
-    def __init__(self, response: bytes):
-        self._response = response
-        self.sent = []
-
-    def send(self, data: bytes) -> None:
-        self.sent.append(data)
-
-    def recv(self, bufsize: int, timeout: float) -> bytes:
-        return self._response
-
-    def close(self) -> None:
+class FakeConnection:
+    def close(self):
         pass
 
 
-def test_run_send_reports_response_payload_hex():
-    response = encode_frame(seq=0, msg_type=0x81, payload=b"\xde\xad")
-    connection = _FakeConnection(response)
+class FakeSession:
+    def __init__(self, connection):
+        pass
 
+    def request(self, data_type, payload):
+        assert data_type == DATA_TYPE_MDR
+        assert payload == bytes.fromhex("0000")
+        return Frame(DATA_TYPE_MDR, 1, b"\x01\x00")
+
+
+def test_run_send_uses_data_type_and_reports_response():
     result = run_send(
         "58:18:62:1F:C9:CB",
-        8,
-        msg_type=0x01,
-        payload_hex="aabb",
-        connect_fn=lambda mac, channel, timeout=10.0: connection,
+        9,
+        data_type=DATA_TYPE_MDR,
+        payload_hex="0000",
+        connect_fn=lambda mac, channel: FakeConnection(),
+        session_factory=FakeSession,
     )
 
-    assert "81" in result  # response msg_type shown
-    assert "dead" in result.lower()  # response payload shown
-    sent_payload = bytes.fromhex("aabb")
-    assert sent_payload in b"".join(connection.sent)
+    assert "data_type=0x0c" in result
+    assert "payload=0100" in result
