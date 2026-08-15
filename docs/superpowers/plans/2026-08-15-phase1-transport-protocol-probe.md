@@ -1,4 +1,4 @@
-# Phase 1: Transport, Protocol Skeleton, Probe CLI — Implementation Plan
+# Phase 1: 전송 계층, 프로토콜 기반, 테스트 CLI — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -1213,7 +1213,7 @@ def run_sniff(
 Run: `uv run pytest tests/unit/test_cli_sniff.py -v`
 Expected: 1 passed.
 
-- [ ] **Step 13: Wire up `cli/main.py`**
+- [ ] **Step 13: `cli/main.py`에 명령 연결**
 
 ```python
 # src/sonus/cli/main.py

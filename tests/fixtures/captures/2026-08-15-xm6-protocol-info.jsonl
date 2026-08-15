@@ -1,0 +1,6 @@
+{"direction":"tx","hex":"3e0c000000000200000e3c","note":"CONNECT_GET_PROTOCOL_INFO"}
+{"direction":"rx","hex":"3e010100000000023c","note":"ACK"}
+{"direction":"rx","hex":"3e0c010000000801000300303200007b3c","note":"CONNECT_RET_PROTOCOL_INFO"}
+{"direction":"tx","hex":"3e010000000000013c","note":"ACK response"}
+{"direction":"rx","hex":"3e0c000000000ec90100096f7043686b42617474006d3c","note":"asynchronous notification"}
+{"direction":"tx","hex":"3e010100000000023c","note":"ACK notification"}
