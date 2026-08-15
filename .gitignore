@@ -1,0 +1,10 @@
+.worktrees/
+.claude/
+.superpowers/
+__pycache__/
+*.pyc
+.venv/
+uv.lock
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
