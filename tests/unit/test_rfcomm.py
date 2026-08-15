@@ -2,7 +2,29 @@ from unittest.mock import patch
 
 import pytest
 
-from sonus.transport.rfcomm import connect_with_backoff, connect_with_retries
+from sonus.transport.rfcomm import connect, connect_with_backoff, connect_with_retries
+
+
+def test_connect_closes_socket_when_connection_fails():
+    with patch("sonus.transport.rfcomm.socket.socket") as socket_factory:
+        sock = socket_factory.return_value
+        sock.connect.side_effect = ConnectionError("device not found")
+
+        with pytest.raises(ConnectionError, match="device not found"):
+            connect("58:18:62:1F:C9:CB", 8)
+
+    sock.close.assert_called_once_with()
+
+
+def test_connect_closes_socket_when_setting_timeout_fails():
+    with patch("sonus.transport.rfcomm.socket.socket") as socket_factory:
+        sock = socket_factory.return_value
+        sock.settimeout.side_effect = OSError("timeout failed")
+
+        with pytest.raises(OSError, match="timeout failed"):
+            connect("58:18:62:1F:C9:CB", 8)
+
+    sock.close.assert_called_once_with()
 
 
 def test_connect_with_backoff_returns_on_first_success():

@@ -91,6 +91,37 @@ def test_request_reassembles_a_response_split_across_recvs():
     ]
 
 
+def test_request_reassembles_large_split_notification_and_acknowledges_it():
+    ack = encode_frame(DATA_TYPE_ACK, 1)
+    notification_payload = bytes(range(256)) * 5
+    notification = encode_frame(DATA_TYPE_MDR, 1, notification_payload)
+    response = encode_frame(DATA_TYPE_MDR, 1, b"\x01\x00")
+    split_points = (len(notification) // 4, len(notification) // 2)
+    notification_chunks = [
+        notification[: split_points[0]],
+        notification[split_points[0] : split_points[1]],
+        notification[split_points[1] :],
+    ]
+    transport = FakeTransport([ack, *notification_chunks, response])
+    session = ProtocolSession(transport)
+
+    result = session.request(
+        DATA_TYPE_MDR,
+        b"\x00\x00",
+        response_matcher=lambda frame: frame.payload.startswith(b"\x01"),
+    )
+
+    assert result.payload == b"\x01\x00"
+    notifications = session.pop_notifications()
+    assert [frame.payload for frame in notifications] == [notification_payload]
+    sent = [decode_frame(raw) for raw in transport.sent]
+    assert [(frame.data_type, frame.seq) for frame in sent] == [
+        (DATA_TYPE_MDR, 0),
+        (DATA_TYPE_ACK, 0),
+        (DATA_TYPE_ACK, 0),
+    ]
+
+
 def test_request_retains_matching_response_received_before_ack():
     response = encode_frame(DATA_TYPE_MDR, 1, b"\x01\x00")
     ack = encode_frame(DATA_TYPE_ACK, 1)

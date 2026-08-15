@@ -31,8 +31,12 @@ class RfcommConnection:
 
 def connect(mac: str, channel: int, timeout: float = 10.0) -> RfcommConnection:
     sock = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-    sock.settimeout(timeout)
-    sock.connect((mac, channel))
+    try:
+        sock.settimeout(timeout)
+        sock.connect((mac, channel))
+    except Exception:
+        sock.close()
+        raise
     return RfcommConnection(sock)
 
 

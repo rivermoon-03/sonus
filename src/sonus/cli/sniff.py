@@ -25,6 +25,8 @@ def run_sniff(
                     data = connection.recv(bufsize=4096, timeout=1.0)
                 except TimeoutError:
                     continue
+                if data == b"":
+                    raise ConnectionError("RFCOMM connection closed")
                 record = {"ts": time.time(), "direction": "rx", "hex": data.hex()}
                 out_file.write(json.dumps(record) + "\n")
                 out_file.flush()

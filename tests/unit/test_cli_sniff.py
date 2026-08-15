@@ -1,6 +1,8 @@
 # tests/unit/test_cli_sniff.py
 import json
 
+import pytest
+
 from sonus.cli.sniff import run_sniff
 
 
@@ -15,6 +17,21 @@ class _FakeConnection:
 
     def close(self) -> None:
         pass
+
+
+class _EofConnection:
+    def __init__(self):
+        self.recv_calls = 0
+        self.closed = False
+
+    def recv(self, bufsize: int, timeout: float) -> bytes:
+        self.recv_calls += 1
+        if self.recv_calls > 1:
+            raise AssertionError("recv called after RFCOMM EOF")
+        return b""
+
+    def close(self) -> None:
+        self.closed = True
 
 
 def test_run_sniff_logs_received_frames_as_jsonl(tmp_path):
@@ -65,3 +82,18 @@ def test_run_sniff_replaces_an_existing_capture(tmp_path):
     records = [json.loads(line) for line in out_path.read_text().splitlines()]
     assert len(records) == 1
     assert records[0]["hex"] == "aa"
+
+
+def test_run_sniff_raises_on_rfcomm_eof_and_closes_connection(tmp_path):
+    out_path = tmp_path / "capture.jsonl"
+    connection = _EofConnection()
+
+    with pytest.raises(ConnectionError, match="RFCOMM connection closed"):
+        run_sniff(
+            "58:18:62:1F:C9:CB",
+            9,
+            str(out_path),
+            connect_fn=lambda mac, channel, timeout=10.0: connection,
+        )
+
+    assert connection.closed is True

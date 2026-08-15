@@ -16,11 +16,12 @@ Sony Sound Connect 앱 없이도 Linux에서 헤드셋 상태를 확인하고 AN
 - BlueZ SDP를 통한 Sony vendor RFCOMM 채널 탐색
 - RFCOMM 연결과 지수 백오프 재시도
 - 통신 테스트용 `probe`, `sniff`, `send` CLI
+- XM6 MDR 데이터 묶음 생성·해석과 조각난 수신 데이터 재조립
+- ACK, 요청 응답과 비동기 알림 세션 처리
 - 실기기 캡처 테스트 자료와 하드웨어 독립 단위 테스트
 
 예정 기능:
 
-- 조각나거나 합쳐진 XM6 수신 데이터와 응답 확인 처리
 - 배터리, 펌웨어와 연결 상태 조회
 - ANC·앰비언트 사운드·EQ·DSEE·멀티포인트 제어
 - 터치 제어, 자동 전원 끄기 등 기기 설정
@@ -57,6 +58,8 @@ uv run pytest
 # 실기기 테스트
 uv run pytest -m hardware
 ```
+
+정상 연결 시 RFCOMM channel과 protocol-info payload가 출력된다.
 
 `sniff`와 `send`는 프로토콜 개발용 저수준 도구다. 아직 확인되지 않은 명령을
 실기기에 전송하면 설정이 바뀔 수 있으므로 캡처와 명령 의미를 확인한 뒤 사용한다.
