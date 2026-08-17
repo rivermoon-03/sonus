@@ -1,0 +1,24 @@
+{
+  "device": "WH-1000XM6",
+  "observed_at": "2026-08-16",
+  "firmware": "3.1.5",
+  "protocol_info": "0100030030320000",
+  "table1_support": "07002d10ff12ff13ff14ff15ff16ff17ff23ff253827ff20ff571356ff6d0b710290ffa114c1ffc2ffe21df13afc0d692cf943d13dd32b94ff4131423c44ffff2fd22219ffeb10e511e60ee71cb717fd2db619b044b245b8213441f425",
+  "table2_support": "070010423f52ff54ff60ff61fff2fff527f93363ff21ff23ff34fffdfff832330531ff",
+  "values": {
+    "battery": {"raw": "23005300", "level": 83, "charging": false},
+    "codec": {"raw": "130210", "value": "LDAC"},
+    "connection_mode": {"raw": "e70000", "value": "sound_quality"},
+    "dsee": {"raw": "e70101", "value": true},
+    "equalizer": {"raw": "5704a10a08090705070707060a0b", "preset": 161, "bands": [8, 9, 7, 5, 7, 7, 7, 6, 10, 11]},
+    "noise_control": {"raw": "671901000000100000", "mode": "noise_cancelling", "ambient_level": 16},
+    "auto_pause": {"raw": "f70100", "value": true},
+    "speak_to_chat": {"raw": "f70c0101", "value": false},
+    "auto_power_off": {"raw": "27051100", "value": "disabled"},
+    "voice_guidance": {"raw": "4701000b", "enabled": true, "language": "japanese"},
+    "voice_guidance_volume": {"raw": "472000", "value": 0},
+    "wearing_status": {"raw": "f30004", "value": "not_worn"},
+    "safe_listening": {"raw": "570200", "value": true},
+    "safe_volume": {"raw": "570400", "value": true}
+  }
+}

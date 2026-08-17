@@ -87,6 +87,9 @@ class ProtocolSession:
         if not ack_received:
             raise ProtocolTimeoutError("ACK timeout after request retries")
 
+        # 헤드셋은 ACK한 요청을 소비한 것으로 간주하므로 응답 유무와 관계없이 번호를 넘긴다.
+        self._seq = 1 - self._seq
+
         if candidate is None:
             deadline = time.monotonic() + self._timeout
             while candidate is None:
@@ -103,7 +106,6 @@ class ProtocolSession:
             if frame.data_type != DATA_TYPE_ACK:
                 self._route_data(frame, response_matcher, candidate)
 
-        self._seq = 1 - self._seq
         return candidate
 
     def pop_notifications(self) -> list[Frame]:

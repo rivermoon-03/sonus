@@ -202,6 +202,29 @@ def test_response_timeout_after_ack_does_not_resend_request():
     assert len(transport.sent) == 1
 
 
+def test_request_sequence_advances_after_ack_even_when_response_times_out():
+    transport = FakeTransport(
+        [
+            encode_frame(DATA_TYPE_ACK, 1),
+            None,
+            encode_frame(DATA_TYPE_ACK, 0),
+            encode_frame(DATA_TYPE_MDR, 0, b"\x03"),
+        ]
+    )
+    session = ProtocolSession(transport)
+
+    with pytest.raises(ProtocolTimeoutError, match="response"):
+        session.request(DATA_TYPE_MDR, b"\x00")
+    assert session.request(DATA_TYPE_MDR, b"\x02").payload == b"\x03"
+
+    requests = [
+        frame
+        for frame in map(decode_frame, transport.sent)
+        if frame.data_type == DATA_TYPE_MDR
+    ]
+    assert [frame.seq for frame in requests] == [0, 1]
+
+
 def test_closed_transport_error_is_preserved():
     session = ProtocolSession(FakeTransport([b""]))
 

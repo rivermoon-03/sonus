@@ -736,7 +736,7 @@ the equivalent Korean Copyright Act §101-4).
 
 Carried over from community XM4/XM5 research. See
 `src/sonus/protocol/framing.py` for the implementation and
-`docs/superpowers/specs/2026-08-15-sonus-driver-design.md` for the design
+`docs/design/2026-08-15-sonus-driver-design.md` for the design
 rationale. **Status: not yet confirmed against real XM6 traffic.**
 
 | Field | Size | Notes |
