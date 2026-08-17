@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Sonus Interface System</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      document.documentElement.dataset.theme =
+        localStorage.getItem("sonus-theme") === "dark" ? "dark" : "light";
+    </script>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <a class="brand" href="#top" aria-label="Sonus 디자인 시스템 홈">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>Sonus</span>
+      </a>
+
+      <div class="sidebar-caption">Interface system</div>
+      <nav class="section-nav" aria-label="디자인 시스템 섹션">
+        <a class="is-active" data-section-link href="#foundations">
+          <span>01</span> Foundations
+        </a>
+        <a data-section-link href="#typography"><span>02</span> Typography</a>
+        <a data-section-link href="#colors"><span>03</span> Colors</a>
+        <a data-section-link href="#spacing"><span>04</span> Spacing</a>
+        <a data-section-link href="#components"><span>05</span> Components</a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="status-dot"></span>
+        <div><strong>Preview 0.1</strong><small>Desktop foundation</small></div>
+      </div>
+    </aside>
+
+    <div class="page-shell" id="top">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Sonus</span><i>/</i> Design language</div>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="3.5"></circle>
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 15.2A8.5 8.5 0 0 1 8.8 4a8.5 8.5 0 1 0 11.2 11.2Z"></path>
+          </svg>
+          <span class="theme-label-light">Light</span>
+          <span class="theme-label-dark">Dark</span>
+        </button>
+      </header>
+
+      <main>
+        <section class="hero" id="foundations">
+          <div class="section-kicker">SONUS / INTERFACE SYSTEM</div>
+          <div class="hero-copy">
+            <div>
+              <h1>소리를 다루는<br />가장 조용한 인터페이스.</h1>
+              <p>
+                헤드셋보다 앞서지 않는 화면. 필요한 정보는 또렷하게,<br class="desktop-only" />
+                조작은 짧고 확실하게 설계합니다.
+              </p>
+            </div>
+            <div class="hero-meta">
+              <span>Foundation</span>
+              <strong>v0.1 — 2026.08</strong>
+            </div>
+          </div>
+
+          <div class="principle-grid">
+            <article class="principle">
+              <span class="principle-number">01</span>
+              <h3>Quiet by default</h3>
+              <p>장식보다 상태와 조작을 우선합니다. 표면은 낮은 대비로 구분합니다.</p>
+            </article>
+            <article class="principle">
+              <span class="principle-number">02</span>
+              <h3>One clear accent</h3>
+              <p>블루는 선택, 연결, 진행처럼 의미 있는 순간에만 사용합니다.</p>
+            </article>
+            <article class="principle">
+              <span class="principle-number">03</span>
+              <h3>Readable rhythm</h3>
+              <p>4px 간격 체계와 안정적인 자간으로 정보의 호흡을 만듭니다.</p>
+            </article>
+          </div>
+
+          <div class="showcase-panel device-showcase">
+            <figure class="device-visual">
+              <img
+                class="product-image"
+                src="assets/wh-1000xm6-black.svg"
+                alt="Sony WH-1000XM6 블랙 헤드폰 벡터 일러스트"
+                width="600"
+                height="600"
+              />
+              <figcaption>
+                <a
+                  href="https://www.sony.co.kr/headphones/products/wh-1000xm6"
+                  target="_blank"
+                  rel="noreferrer"
+                >Vector illustration · official Sony reference</a>
+              </figcaption>
+            </figure>
+            <div class="device-summary">
+              <div class="eyebrow-row"><span class="live-dot"></span> CONNECTED</div>
+              <h2>WH-1000XM6</h2>
+              <p>LDAC · 음질 우선</p>
+              <div class="metric-row">
+                <div><span>Battery</span><strong>67%</strong></div>
+                <div><span>Noise control</span><strong>Off</strong></div>
+                <div><span>DSEE Extreme</span><strong>Auto</strong></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="typography">
+          <div class="section-heading">
+            <span>02</span>
+            <div><h2>Typography</h2><p>정보 밀도는 높게, 읽는 피로는 낮게.</p></div>
+          </div>
+
+          <div class="type-intro showcase-panel">
+            <div>
+              <span class="spec-label">TYPEFACE</span>
+              <h3>Pretendard</h3>
+              <p>한글과 영문이 같은 리듬으로 보이는 현대적인 시스템 산세리프.</p>
+            </div>
+            <div class="alphabet">가나다라<br /><span>Aa Bb Cc</span></div>
+          </div>
+
+          <div class="type-table">
+            <div class="type-row type-display">
+              <div><span>Display</span><code>44 / 1.14 / -0.035em</code></div>
+              <p>집중을 위한 고요함</p>
+            </div>
+            <div class="type-row type-title">
+              <div><span>Title</span><code>28 / 1.25 / -0.025em</code></div>
+              <p>노이즈 캔슬링</p>
+            </div>
+            <div class="type-row type-heading">
+              <div><span>Heading</span><code>18 / 1.4 / -0.015em</code></div>
+              <p>주변 소리 제어</p>
+            </div>
+            <div class="type-row type-body">
+              <div><span>Body</span><code>15 / 1.65 / -0.005em</code></div>
+              <p>현재 연결된 헤드셋의 상태를 확인하고 설정을 조절합니다.</p>
+            </div>
+            <div class="type-row type-caption">
+              <div><span>Caption</span><code>12 / 1.5 / 0.01em</code></div>
+              <p>마지막 동기화 · 방금 전</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="colors">
+          <div class="section-heading">
+            <span>03</span>
+            <div><h2>Colors</h2><p>차가운 중성색 위에 하나의 명확한 블루.</p></div>
+          </div>
+
+          <div class="color-groups">
+            <div class="color-group">
+              <div class="group-label"><strong>Primary blue</strong><span>Action & state</span></div>
+              <div class="swatch-row">
+                <div class="swatch blue-50"><span>50</span><code>#EFF6FF</code></div>
+                <div class="swatch blue-100"><span>100</span><code>#DBEAFE</code></div>
+                <div class="swatch blue-500"><span>500</span><code>#3B82F6</code></div>
+                <div class="swatch blue-600 is-primary"><span>600</span><code>#2563EB</code></div>
+                <div class="swatch blue-700"><span>700</span><code>#1D4ED8</code></div>
+              </div>
+            </div>
+
+            <div class="color-group">
+              <div class="group-label"><strong>Neutral</strong><span>Surface & type</span></div>
+              <div class="swatch-row neutral-row">
+                <div class="swatch neutral-0"><span>0</span><code>#FFFFFF</code></div>
+                <div class="swatch neutral-50"><span>50</span><code>#F7F8FA</code></div>
+                <div class="swatch neutral-200"><span>200</span><code>#E2E6EC</code></div>
+                <div class="swatch neutral-500"><span>500</span><code>#697386</code></div>
+                <div class="swatch neutral-900"><span>900</span><code>#151922</code></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="spacing">
+          <div class="section-heading">
+            <span>04</span>
+            <div><h2>Spacing & surface</h2><p>4px의 배수로 예측 가능한 리듬을 만듭니다.</p></div>
+          </div>
+
+          <div class="foundation-columns">
+            <div class="showcase-panel spacing-panel">
+              <div class="panel-label">Spacing scale</div>
+              <div class="space-list">
+                <div><span class="space-bar s4"></span><code>04</code><small>1×</small></div>
+                <div><span class="space-bar s8"></span><code>08</code><small>2×</small></div>
+                <div><span class="space-bar s12"></span><code>12</code><small>3×</small></div>
+                <div><span class="space-bar s16"></span><code>16</code><small>4×</small></div>
+                <div><span class="space-bar s24"></span><code>24</code><small>6×</small></div>
+                <div><span class="space-bar s32"></span><code>32</code><small>8×</small></div>
+                <div><span class="space-bar s48"></span><code>48</code><small>12×</small></div>
+              </div>
+            </div>
+            <div class="showcase-panel surface-panel">
+              <div class="panel-label">Radius & elevation</div>
+              <div class="radius-grid">
+                <div><span class="radius-s"></span><code>08</code><small>Control</small></div>
+                <div><span class="radius-m"></span><code>12</code><small>Panel</small></div>
+                <div><span class="radius-l"></span><code>16</code><small>Feature</small></div>
+              </div>
+              <div class="elevation-sample">
+                <div><span>Elevation 01</span><small>Floating control only</small></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="components">
+          <div class="section-heading">
+            <span>05</span>
+            <div><h2>Components</h2><p>상태는 즉시 읽히고, 조작은 망설임 없이.</p></div>
+          </div>
+
+          <div class="component-grid">
+            <article class="component-card wide">
+              <div class="component-title"><span>Buttons</span><code>Height 40</code></div>
+              <div class="button-row">
+                <button class="button primary" type="button">변경사항 적용</button>
+                <button class="button secondary" type="button">다시 연결</button>
+                <button class="button ghost" type="button">취소</button>
+                <button class="button danger" type="button">연결 해제</button>
+                <button class="button primary" type="button" disabled>적용 중</button>
+              </div>
+            </article>
+
+            <article class="component-card">
+              <div class="component-title"><span>Input & select</span><code>Form</code></div>
+              <label class="field-label" for="device-name">기기 이름</label>
+              <input class="text-input" id="device-name" value="WH-1000XM6" />
+              <label class="field-label" for="quality">Bluetooth 연결 모드</label>
+              <select class="select-input" id="quality">
+                <option>음질 우선</option>
+                <option>연결 안정성 우선</option>
+              </select>
+            </article>
+
+            <article class="component-card">
+              <div class="component-title"><span>Toggle</span><code>Binary</code></div>
+              <div class="setting-row">
+                <div><strong>DSEE Extreme</strong><small>압축 음원을 고해상도로 업스케일</small></div>
+                <label class="switch"><input type="checkbox" checked /><span></span></label>
+              </div>
+              <div class="setting-row">
+                <div><strong>Speak-to-Chat</strong><small>말을 시작하면 음악 일시정지</small></div>
+                <label class="switch"><input type="checkbox" /><span></span></label>
+              </div>
+            </article>
+
+            <article class="component-card wide">
+              <div class="component-title"><span>Slider</span><code>Continuous</code></div>
+              <div class="slider-header"><div><strong>주변 소리</strong><small>외부 소리를 자연스럽게 통과시킵니다.</small></div><output>16</output></div>
+              <input class="range" type="range" min="0" max="20" value="16" aria-label="주변 소리 단계" />
+              <div class="range-labels"><span>차단</span><span>주변 소리 20</span></div>
+            </article>
+
+            <article class="component-card wide">
+              <div class="component-title"><span>Status & badge</span><code>Feedback</code></div>
+              <div class="badge-row">
+                <span class="badge success"><i></i>연결됨</span>
+                <span class="badge info">LDAC</span>
+                <span class="badge neutral">읽기 전용</span>
+                <span class="badge warning"><i></i>응답 지연</span>
+              </div>
+              <div class="status-message">
+                <div class="status-icon" aria-hidden="true">✓</div>
+                <div><strong>헤드셋이 최신 상태입니다.</strong><p>모든 설정을 방금 동기화했습니다.</p></div>
+                <button type="button">새로고침</button>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer><span>Sonus Interface System</span><span>Designed for Linux · Pretendard</span></footer>
+    </div>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

@@ -32,3 +32,63 @@ def test_xm6_dsee_temporary_setting_is_restored():
         assert device.get("dsee").value is original
     finally:
         connection.close()
+
+
+def _alternate_value(key, original):
+    if key in {"dsee", "auto_pause"}:
+        return not original
+    if key == "noise_control":
+        return {**original, "enabled": not original["enabled"]}
+    if key == "equalizer":
+        bands = list(original["bands"])
+        bands[0] = bands[0] + 1 if bands[0] < 20 else bands[0] - 1
+        return {**original, "bands": bands}
+    if key == "speak_to_chat":
+        return {**original, "enabled": not original["enabled"]}
+    if key == "connection_mode":
+        return (
+            "stable_connection"
+            if original == "sound_quality"
+            else "sound_quality"
+        )
+    if key == "auto_power_off":
+        return {
+            "mode": "when_removed" if original["mode"] == "disabled" else "disabled",
+            "last_mode": original["last_mode"],
+        }
+    if key == "voice_guidance":
+        return {**original, "enabled": not original["enabled"]}
+    if key == "voice_guidance_volume":
+        return original + 1 if original < 2 else original - 1
+    raise AssertionError(f"no safe alternate for {key}")
+
+
+@pytest.mark.hardware
+@pytest.mark.parametrize(
+    "key",
+    [
+        "dsee",
+        "equalizer",
+        "auto_pause",
+        "speak_to_chat",
+        "connection_mode",
+        "auto_power_off",
+        "voice_guidance",
+        "voice_guidance_volume",
+    ],
+)
+def test_xm6_verified_write_is_restored(key):
+    channel = find_rfcomm_channel(XM6_MAC, DEFAULT_SERVICE_UUID)
+    connection = connect_with_retries(XM6_MAC, channel)
+    try:
+        device = SonyXm6Device(ProtocolSession(connection))
+        original = device.get(key)
+        alternate = _alternate_value(key, original.value)
+
+        with device.temporary_setting(key, alternate) as changed:
+            assert changed.value == alternate
+
+        restored = device.get(key)
+        assert restored.value == original.value
+    finally:
+        connection.close()

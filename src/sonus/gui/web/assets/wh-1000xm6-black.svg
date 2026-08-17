@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-labelledby="title description">
+  <title id="title">Sony WH-1000XM6 black headset illustration</title>
+  <desc id="description">A restrained vector illustration of black over-ear headphones in a three-quarter view.</desc>
+  <defs>
+    <linearGradient id="band" x1="145" y1="130" x2="465" y2="345" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#111318"/>
+      <stop offset=".34" stop-color="#3a3e43"/>
+      <stop offset=".62" stop-color="#17191d"/>
+      <stop offset="1" stop-color="#050607"/>
+    </linearGradient>
+    <linearGradient id="bandEdge" x1="175" y1="145" x2="450" y2="330" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#70757a"/>
+      <stop offset=".38" stop-color="#25282c"/>
+      <stop offset="1" stop-color="#090a0c"/>
+    </linearGradient>
+    <radialGradient id="cupRear" cx=".38" cy=".3" r=".85">
+      <stop stop-color="#3d4146"/>
+      <stop offset=".45" stop-color="#1e2125"/>
+      <stop offset="1" stop-color="#070809"/>
+    </radialGradient>
+    <radialGradient id="cupFront" cx=".36" cy=".27" r=".9">
+      <stop stop-color="#41454a"/>
+      <stop offset=".48" stop-color="#23262a"/>
+      <stop offset="1" stop-color="#090a0c"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="330" y1="280" x2="485" y2="500" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#666b70"/>
+      <stop offset=".18" stop-color="#2d3034"/>
+      <stop offset=".8" stop-color="#0d0f11"/>
+      <stop offset="1" stop-color="#030405"/>
+    </linearGradient>
+    <linearGradient id="highlight" x1="0" x2="1">
+      <stop stop-color="#fff" stop-opacity=".28"/>
+      <stop offset=".52" stop-color="#fff" stop-opacity=".03"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="18"/>
+      <feOffset dy="20"/>
+      <feColorMatrix values="0 0 0 0 0.035 0 0 0 0 0.055 0 0 0 0 0.09 0 0 0 .22 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+  </defs>
+
+  <ellipse cx="316" cy="500" rx="205" ry="35" fill="#111827" opacity=".08"/>
+
+  <g filter="url(#shadow)">
+    <path d="M165 368C139 251 160 151 236 101c55-36 134-35 188 6 69 52 84 145 54 258"
+          fill="none" stroke="url(#band)" stroke-width="61" stroke-linecap="round"/>
+    <path d="M170 351c-17-100 5-175 69-219 50-34 120-32 169 5 59 45 71 123 50 211"
+          fill="none" stroke="url(#bandEdge)" stroke-width="10" stroke-linecap="round" opacity=".78"/>
+    <path d="M176 319c-8-75 14-132 66-167 47-31 109-29 154 5"
+          fill="none" stroke="url(#highlight)" stroke-width="5" stroke-linecap="round"/>
+
+    <g transform="rotate(-7 182 375)">
+      <rect x="143" y="310" width="73" height="119" rx="29" fill="url(#band)"/>
+      <rect x="157" y="376" width="51" height="104" rx="22" fill="#15181b"/>
+      <path d="M171 380v79" stroke="#64696e" stroke-width="4" stroke-linecap="round" opacity=".65"/>
+      <ellipse cx="180" cy="430" rx="83" ry="108" fill="url(#rim)"/>
+      <ellipse cx="177" cy="429" rx="70" ry="94" fill="url(#cupRear)"/>
+      <path d="M134 354c17-15 44-23 64-16" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="5" stroke-linecap="round"/>
+      <ellipse cx="167" cy="416" rx="45" ry="69" fill="#0b0d0f" opacity=".23"/>
+    </g>
+
+    <g transform="rotate(8 413 400)">
+      <rect x="384" y="294" width="70" height="123" rx="29" fill="url(#band)"/>
+      <path d="M399 345v69M442 344v70" stroke="#676c71" stroke-width="4" stroke-linecap="round" opacity=".72"/>
+      <path d="M391 367h59" stroke="#090a0c" stroke-width="13" stroke-linecap="round"/>
+      <ellipse cx="420" cy="420" rx="101" ry="129" fill="url(#rim)"/>
+      <ellipse cx="414" cy="416" rx="87" ry="113" fill="url(#cupFront)"/>
+      <ellipse cx="408" cy="408" rx="62" ry="86" fill="#24272b"/>
+      <ellipse cx="400" cy="395" rx="47" ry="68" fill="url(#highlight)" opacity=".42"/>
+      <path d="M357 340c28-29 70-38 101-22" fill="none" stroke="#fff" stroke-opacity=".17" stroke-width="6" stroke-linecap="round"/>
+      <path d="M373 492c27 18 65 18 91-1" fill="none" stroke="#000" stroke-opacity=".36" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="489" cy="428" r="3.5" fill="#2563eb" opacity=".9"/>
+    </g>
+  </g>
+
+  <g opacity=".64">
+    <path d="M122 497h74" stroke="#2563eb" stroke-width="2"/>
+    <path d="M462 518h36" stroke="#2563eb" stroke-width="2"/>
+    <circle cx="112" cy="497" r="3" fill="#2563eb"/>
+    <circle cx="508" cy="518" r="3" fill="#2563eb"/>
+  </g>
+</svg>

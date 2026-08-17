@@ -20,14 +20,15 @@ Sony Sound Connect 앱 없이도 Linux에서 헤드셋 상태를 확인하고 AN
 - ACK, 요청 응답과 비동기 알림 세션 처리
 - 모델, 펌웨어, 배터리, 코덱과 주요 XM6 설정 조회
 - `status`, `settings`, `get`, `set`, `discover` 통합 CLI
-- 안전 등급 기반 쓰기 차단과 DSEE 설정 자동 복원 검증
+- 안전 등급 기반 쓰기 차단과 8개 설정의 자동 검증·원상 복원
 - 실기기 캡처 테스트 자료와 하드웨어 독립 단위 테스트
+- 라이트/다크 테마, 시스템 트레이와 실시간 상태 갱신을 갖춘 PyQt6 GUI
+- 최초 Disclaimer 동의, 저장 기기 선택과 검증된 설정 쓰기를 갖춘 GUI
 
 확장 예정:
 
-- ANC·앰비언트 사운드·EQ·멀티포인트 쓰기 제어
-- 터치 제어, 자동 전원 끄기 등 기기 설정
-- PyQt6 GUI와 시스템 트레이
+- ANC·앰비언트 사운드의 저장 상태를 분리 조회하는 안전한 제어
+- 멀티포인트, 터치 제어 등 추가 기기 설정
 
 ## 언어 및 주요 기술
 
@@ -35,9 +36,8 @@ Sony Sound Connect 앱 없이도 Linux에서 헤드셋 상태를 확인하고 AN
 - 표준 라이브러리 `socket`, `argparse`, `dataclasses` — 통신·CLI·자료형
 - BlueZ 및 Python `socket` — Bluetooth SDP/RFCOMM 통신
 - `pytest` — 단위 테스트와 하드웨어 테스트
+- PyQt6, Qt WebEngine — 데스크톱 셸과 로컬 HTML/CSS 인터페이스
 - `uv`, Hatchling — 개발 환경과 패키징
-
-PyQt6 GUI는 다음 단계에서 추가할 예정이며 현재 런타임 의존성은 없다.
 
 ## 요구 사항
 
@@ -52,6 +52,12 @@ PyQt6 GUI는 다음 단계에서 추가할 예정이며 현재 런타임 의존�
 git clone <repository-url> sonus
 cd sonus
 uv sync
+
+# 데스크톱 제어 앱 (기기 주소를 미리 입력할 수도 있음)
+uv run sonus-gui --mac 58:18:62:1F:C9:CB --channel 9
+
+# 저장소 루트의 간편 실행기 (같은 GUI 진입점)
+./run.sh --mac 58:18:62:1F:C9:CB --channel 9
 
 # RFCOMM 채널 탐색과 연결 확인
 uv run sonus probe --mac <HEADSET_MAC>
@@ -74,8 +80,14 @@ uv run pytest
 uv run pytest -m hardware
 ```
 
-정상 연결 시 RFCOMM channel과 protocol-info payload가 출력된다. 현재 정식 쓰기는
-실기기에서 변경과 원상 복원을 확인한 DSEE만 허용한다.
+정상 연결 시 RFCOMM channel과 protocol-info payload가 출력된다. 정식 쓰기는
+실기기에서 변경·재조회·원상 복원·재조회를 확인한 DSEE, EQ, 자동 일시정지,
+Speak-to-Chat, 연결 모드, 자동 전원 끄기, 음성 안내와 안내 음량만 허용한다.
+
+GUI는 최초 1회 설정 변경 안내에 동의한 뒤 같은 검증 API로 설정을 적용하고 재조회한다.
+ANC와 안전 청취처럼 원상 복원을 증명하지 못한 항목은 계속 조회 전용이다. 주소를
+생략하면 등록 기기 목록 또는 직접 입력으로 연결할 수 있고 이후 동의, 테마, 기기와
+창 크기를 기억한다.
 
 `sniff`와 `send`는 프로토콜 개발용 저수준 도구다. 아직 확인되지 않은 명령을
 실기기에 전송하면 설정이 바뀔 수 있으므로 캡처와 명령 의미를 확인한 뒤 사용한다.

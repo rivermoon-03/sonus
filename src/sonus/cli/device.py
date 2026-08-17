@@ -4,13 +4,12 @@ import json
 from contextlib import contextmanager
 from typing import Any, Iterator
 
+from sonus.device.connection import open_xm6_device
 from sonus.device.xm6 import FeatureResult, SonyXm6Device
 from sonus.messages.registry import DISCOVERY_FEATURES, FEATURES
-from sonus.protocol.session import ProtocolSession
 from sonus.transport.rfcomm import connect_with_retries as default_connect
 from sonus.transport.sdp import find_rfcomm_channel as default_find_channel
 
-DEFAULT_SERVICE_UUID = "956c7b26-d49a-4ba8-b03f-b17d393cb6e2"
 STATUS_KEYS = (
     "model_name",
     "firmware_version",
@@ -41,14 +40,14 @@ def _open_device(
     find_channel=default_find_channel,
     connect_fn=default_connect,
 ) -> Iterator[SonyXm6Device]:
-    resolved_channel = channel
-    if resolved_channel is None:
-        resolved_channel = find_channel(mac, DEFAULT_SERVICE_UUID)
-    connection = connect_fn(mac, resolved_channel)
-    try:
-        yield SonyXm6Device(ProtocolSession(connection), features=features)
-    finally:
-        connection.close()
+    with open_xm6_device(
+        mac,
+        channel,
+        features=features,
+        find_channel=find_channel,
+        connect_fn=connect_fn,
+    ) as device:
+        yield device
 
 
 def format_results(results: dict[str, FeatureResult], *, as_json: bool) -> str:
@@ -124,7 +123,7 @@ def run_set(
 ) -> str:
     with _open_device(mac, channel) as device:
         return format_results(
-            {key: device.set(key, parse_value(value))},
+            {key: device.set_verified(key, parse_value(value))},
             as_json=as_json,
         )
 

@@ -65,3 +65,9 @@ cli/  ──depends on──▶  device/ (필요 시 protocol/ 직접 접근 가
 코드 작성을 서브에이전트에 위임할 때는 모델을 Sonnet 또는 Haiku로 지정한다
 (Opus 사용 금지). 판단이 필요한 구현(프로토콜 코덱, 상태 관리)은 Sonnet,
 기계적 보일러플레이트·테스트는 Haiku.
+
+## 커밋 규칙
+
+- Conventional Commits 타입(`feat`, `fix`, `docs`, `refactor`, `test`, `chore`)은
+  영어로 쓰고, 콜론 뒤 설명은 한국어로 쓴다.
+- 푸시 전에는 같은 목적의 자잘한 작업 커밋을 의미 있는 단위로 간추린다.

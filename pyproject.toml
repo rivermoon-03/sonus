@@ -4,10 +4,14 @@ version = "0.1.0"
 description = "Linux driver and PyQt6 control app for the Sony WH-1000XM6"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "pyqt6>=6.7",
+    "pyqt6-webengine>=6.7",
+]
 
 [project.scripts]
 sonus = "sonus.cli.main:main"
+sonus-gui = "sonus.gui.main:main"
 
 [dependency-groups]
 dev = [

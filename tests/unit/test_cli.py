@@ -1,7 +1,7 @@
 import json
 
 from sonus.cli import main as cli_main
-from sonus.cli.device import format_results, parse_value
+from sonus.cli.device import format_results, parse_value, run_set
 from sonus.device.xm6 import FeatureResult
 from sonus.protocol.session import ProtocolTimeoutError
 
@@ -101,3 +101,25 @@ def test_main_converts_timeout_to_short_user_message(monkeypatch, capsys):
     assert "응답 시간이 초과" in captured.err
     assert "Traceback" not in captured.err
     assert "internal detail" not in captured.err
+
+
+def test_run_set_uses_verified_write(monkeypatch):
+    calls = []
+
+    class Device:
+        def set_verified(self, key, value):
+            calls.append((key, value))
+            return FeatureResult(key, key, value, writable=True)
+
+    class Context:
+        def __enter__(self):
+            return Device()
+
+        def __exit__(self, *args):
+            return None
+
+    monkeypatch.setattr("sonus.cli.device._open_device", lambda *args, **kwargs: Context())
+
+    run_set("AA", 9, "connection_mode", "stable_connection", as_json=True)
+
+    assert calls == [("connection_mode", "stable_connection")]
