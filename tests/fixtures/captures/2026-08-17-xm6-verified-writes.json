@@ -1,0 +1,22 @@
+{
+  "date": "2026-08-17",
+  "device": "Sony WH-1000XM6 (identifier removed)",
+  "firmware": "3.1.5",
+  "method": "read original, set alternate, read and compare, restore original, read and compare",
+  "result": "8 passed",
+  "verified": [
+    {"key": "dsee", "original_raw": "e70101", "alternate": false, "restored_raw": "e70101"},
+    {"key": "equalizer", "original_raw": "5704a10a08090705070707060a0b", "alternate": "first band +1", "restored_raw": "5704a10a08090705070707060a0b", "set_response": "ACK only"},
+    {"key": "auto_pause", "original_raw": "f70100", "alternate": false, "restored_raw": "f70100"},
+    {"key": "speak_to_chat", "original_raw": "f70c0101", "alternate": {"enabled": true, "preview": false}, "restored_raw": "f70c0101"},
+    {"key": "connection_mode", "original_raw": "e70000", "alternate": "stable_connection", "restored_raw": "e70000", "set_response": "ACK only"},
+    {"key": "auto_power_off", "original_raw": "27051100", "alternate": {"mode": "when_removed", "last_mode": "5_minutes"}, "restored_raw": "27051100"},
+    {"key": "voice_guidance", "original_raw": "4701000b", "alternate": {"enabled": false, "language": "japanese"}, "restored_raw": "4701000b", "set_response": "partial notification; verified by GET"},
+    {"key": "voice_guidance_volume", "original_raw": "472000", "alternate": 1, "restored_raw": "472000"}
+  ],
+  "read_only": [
+    {"key": "noise_control", "reason": "GET reports operational enabled state affected by wearing status; exact stored state cannot be proven"},
+    {"key": "safe_listening", "reason": "response is support availability, not a restorable setting value"},
+    {"key": "safe_volume", "reason": "response is support availability, not a restorable setting value"}
+  ]
+}

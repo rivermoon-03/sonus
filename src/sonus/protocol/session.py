@@ -59,7 +59,8 @@ class ProtocolSession:
         payload: bytes = b"",
         *,
         response_matcher: Callable[[Frame], bool] | None = None,
-    ) -> Frame:
+        response_required: bool = True,
+    ) -> Frame | None:
         request_seq = self._seq
         encoded = encode_frame(data_type, request_seq, payload)
         expected_ack_seq = 1 - request_seq
@@ -89,6 +90,11 @@ class ProtocolSession:
 
         # 헤드셋은 ACK한 요청을 소비한 것으로 간주하므로 응답 유무와 관계없이 번호를 넘긴다.
         self._seq = 1 - self._seq
+
+        if not response_required:
+            if candidate is not None:
+                self._notifications.append(candidate)
+            return None
 
         if candidate is None:
             deadline = time.monotonic() + self._timeout

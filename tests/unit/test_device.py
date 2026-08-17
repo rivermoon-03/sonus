@@ -2,7 +2,12 @@ from __future__ import annotations
 
 import pytest
 
-from sonus.device.xm6 import SonyXm6Device, UnsupportedFeatureError, UnsafeWriteError
+from sonus.device.xm6 import (
+    SonyXm6Device,
+    UnsupportedFeatureError,
+    UnsafeWriteError,
+    WriteVerificationError,
+)
 from sonus.messages.codec import decode_bool
 from sonus.messages.types import FeatureSpec, Safety
 from sonus.protocol.framing import DATA_TYPE_MDR, Frame
@@ -13,7 +18,14 @@ class FakeSession:
         self.responses = list(responses)
         self.requests = []
 
-    def request(self, data_type, payload=b"", *, response_matcher=None):
+    def request(
+        self,
+        data_type,
+        payload=b"",
+        *,
+        response_matcher=None,
+        response_required=True,
+    ):
         self.requests.append((data_type, payload, response_matcher))
         response = self.responses.pop(0)
         if isinstance(response, Exception):
@@ -57,7 +69,7 @@ def test_get_many_keeps_other_results_when_one_query_fails():
 
 def test_set_blocks_read_only_feature():
     with pytest.raises(UnsafeWriteError, match="read-only"):
-        SonyXm6Device(FakeSession([])).set("auto_pause", True)
+        SonyXm6Device(FakeSession([])).set("battery", 50)
 
 
 def test_temporary_setting_restores_original_after_body_error():
@@ -81,7 +93,9 @@ def test_temporary_setting_restores_original_after_body_error():
         [
             Frame(DATA_TYPE_MDR, 1, bytes.fromhex("e70100")),
             Frame(DATA_TYPE_MDR, 0, bytes.fromhex("e90101")),
+            Frame(DATA_TYPE_MDR, 1, bytes.fromhex("e70101")),
             Frame(DATA_TYPE_MDR, 1, bytes.fromhex("e90100")),
+            Frame(DATA_TYPE_MDR, 0, bytes.fromhex("e70100")),
         ]
     )
     device = SonyXm6Device(session, features={"toggle": feature})
@@ -93,10 +107,104 @@ def test_temporary_setting_restores_original_after_body_error():
     assert [payload for _, payload, _ in session.requests] == [
         bytes.fromhex("e601"),
         bytes.fromhex("e80101"),
+        bytes.fromhex("e601"),
         bytes.fromhex("e80100"),
+        bytes.fromhex("e601"),
+    ]
+
+
+def test_set_verified_rejects_a_write_that_does_not_round_trip():
+    feature = FeatureSpec(
+        "toggle",
+        "토글",
+        b"\xE6\x01",
+        0xE7,
+        0x01,
+        lambda payload: decode_bool(payload, 0xE7, 0x01),
+        Safety.REVERSIBLE,
+        encoder=lambda value: b"\xE8\x01" + bytes((int(value),)),
+        write_response_command=0xE9,
+        write_response_type=0x01,
+        write_decoder=lambda payload: decode_bool(payload, 0xE9, 0x01),
+    )
+    session = FakeSession(
+        [
+            Frame(DATA_TYPE_MDR, 0, bytes.fromhex("e90101")),
+            Frame(DATA_TYPE_MDR, 1, bytes.fromhex("e70100")),
+        ]
+    )
+
+    with pytest.raises(WriteVerificationError, match="toggle"):
+        SonyXm6Device(session, features={"toggle": feature}).set_verified(
+            "toggle", True
+        )
+
+
+def test_temporary_setting_retries_restore_once_and_verifies_the_original():
+    feature = FeatureSpec(
+        "toggle",
+        "토글",
+        b"\xE6\x01",
+        0xE7,
+        0x01,
+        lambda payload: decode_bool(payload, 0xE7, 0x01),
+        Safety.REVERSIBLE,
+        encoder=lambda value: b"\xE8\x01" + bytes((int(value),)),
+        write_response_command=0xE9,
+        write_response_type=0x01,
+        write_decoder=lambda payload: decode_bool(payload, 0xE9, 0x01),
+    )
+    session = FakeSession(
+        [
+            Frame(DATA_TYPE_MDR, 1, bytes.fromhex("e70100")),
+            Frame(DATA_TYPE_MDR, 0, bytes.fromhex("e90101")),
+            Frame(DATA_TYPE_MDR, 1, bytes.fromhex("e70101")),
+            TimeoutError("first restore timed out"),
+            Frame(DATA_TYPE_MDR, 0, bytes.fromhex("e90100")),
+            Frame(DATA_TYPE_MDR, 1, bytes.fromhex("e70100")),
+        ]
+    )
+    device = SonyXm6Device(session, features={"toggle": feature})
+
+    with device.temporary_setting("toggle", True) as changed:
+        assert changed.value is True
+
+    assert [payload for _, payload, _ in session.requests][-3:] == [
+        bytes.fromhex("e80100"),
+        bytes.fromhex("e80100"),
+        bytes.fromhex("e601"),
     ]
 
 
 def test_temporary_setting_is_a_context_manager_on_success():
     # 공개 API가 실제 context manager임을 간단히 고정한다.
     assert hasattr(SonyXm6Device.temporary_setting, "__call__")
+
+
+def test_set_verified_supports_ack_only_write_followed_by_get():
+    feature = FeatureSpec(
+        "eq",
+        "EQ",
+        b"\x56\x04",
+        0x57,
+        0x04,
+        lambda payload: {"level": payload[-1]},
+        Safety.REVERSIBLE,
+        encoder=lambda value: b"\x58\x00" + bytes((value["level"],)),
+    )
+    session = FakeSession(
+        [
+            None,
+            Frame(DATA_TYPE_MDR, 1, bytes.fromhex("57040b")),
+        ]
+    )
+
+    result = SonyXm6Device(session, features={"eq": feature}).set_verified(
+        "eq", {"level": 11}
+    )
+
+    assert result.value == {"level": 11}
+    assert [payload for _, payload, _ in session.requests] == [
+        bytes.fromhex("58000b"),
+        bytes.fromhex("5604"),
+    ]

@@ -202,6 +202,27 @@ def test_response_timeout_after_ack_does_not_resend_request():
     assert len(transport.sent) == 1
 
 
+def test_request_can_finish_after_ack_when_command_has_no_data_response():
+    transport = FakeTransport([encode_frame(DATA_TYPE_ACK, 1)])
+    session = ProtocolSession(transport)
+
+    result = session.request(DATA_TYPE_MDR, b"\x58\x00", response_required=False)
+
+    assert result is None
+    assert decode_frame(transport.sent[0]).payload == b"\x58\x00"
+
+
+def test_ack_only_request_queues_unrelated_data_instead_of_returning_it():
+    notification = encode_frame(DATA_TYPE_MDR, 1, b"\x15\x02\x00")
+    ack = encode_frame(DATA_TYPE_ACK, 1)
+    session = ProtocolSession(FakeTransport([notification, ack]))
+
+    result = session.request(DATA_TYPE_MDR, b"\xe8\x00\x01", response_required=False)
+
+    assert result is None
+    assert [frame.payload for frame in session.pop_notifications()] == [b"\x15\x02\x00"]
+
+
 def test_request_sequence_advances_after_ack_even_when_response_times_out():
     transport = FakeTransport(
         [

@@ -20,7 +20,14 @@ from sonus.messages.codec import (
     decode_speak_to_chat,
     decode_voice_guidance,
     decode_wearing_status,
+    encode_auto_power_off,
+    encode_connection_mode,
     encode_dsee,
+    encode_equalizer,
+    encode_speak_to_chat,
+    encode_system_toggle,
+    encode_voice_guidance,
+    encode_voice_guidance_volume,
 )
 from sonus.messages.types import FeatureSpec, Safety
 from sonus.protocol.framing import DATA_TYPE_MDR_NO2
@@ -98,6 +105,7 @@ FEATURES: dict[str, FeatureSpec] = {
             0x67,
             0x19,
             decode_noise_control,
+            Safety.READ_ONLY,
             function_id=0x6D,
         ),
         FeatureSpec(
@@ -107,7 +115,9 @@ FEATURES: dict[str, FeatureSpec] = {
             0x57,
             0x04,
             decode_equalizer,
+            Safety.REVERSIBLE,
             function_id=0x57,
+            encoder=encode_equalizer,
         ),
         FeatureSpec(
             "dsee",
@@ -130,7 +140,14 @@ FEATURES: dict[str, FeatureSpec] = {
             0xF7,
             0x01,
             partial(decode_sony_on_off, command=0xF7, item_type=0x01),
+            Safety.REVERSIBLE,
             function_id=0xF1,
+            encoder=partial(encode_system_toggle, 0x01),
+            write_response_command=0xF9,
+            write_response_type=0x01,
+            write_decoder=partial(
+                decode_sony_on_off, command=0xF9, item_type=0x01
+            ),
         ),
         FeatureSpec(
             "speak_to_chat",
@@ -139,7 +156,12 @@ FEATURES: dict[str, FeatureSpec] = {
             0xF7,
             0x0C,
             decode_speak_to_chat,
+            Safety.REVERSIBLE,
             function_id=0xFC,
+            encoder=encode_speak_to_chat,
+            write_response_command=0xF9,
+            write_response_type=0x0C,
+            write_decoder=partial(decode_speak_to_chat, command=0xF9),
         ),
         FeatureSpec(
             "connection_mode",
@@ -148,7 +170,9 @@ FEATURES: dict[str, FeatureSpec] = {
             0xE7,
             0x00,
             decode_connection_mode,
+            Safety.REVERSIBLE,
             function_id=0xE1,
+            encoder=encode_connection_mode,
         ),
         FeatureSpec(
             "auto_power_off",
@@ -157,7 +181,12 @@ FEATURES: dict[str, FeatureSpec] = {
             0x27,
             0x05,
             decode_auto_power_off,
+            Safety.REVERSIBLE,
             function_id=0x25,
+            encoder=encode_auto_power_off,
+            write_response_command=0x29,
+            write_response_type=0x05,
+            write_decoder=partial(decode_auto_power_off, command=0x29),
         ),
         FeatureSpec(
             "voice_guidance",
@@ -166,8 +195,10 @@ FEATURES: dict[str, FeatureSpec] = {
             0x47,
             0x01,
             decode_voice_guidance,
+            Safety.REVERSIBLE,
             data_type=DATA_TYPE_MDR_NO2,
             function_id=0x42,
+            encoder=encode_voice_guidance,
         ),
         FeatureSpec(
             "voice_guidance_volume",
@@ -176,8 +207,15 @@ FEATURES: dict[str, FeatureSpec] = {
             0x47,
             0x20,
             partial(decode_signed_byte, command=0x47, item_type=0x20),
+            Safety.REVERSIBLE,
             data_type=DATA_TYPE_MDR_NO2,
             function_id=0x42,
+            encoder=encode_voice_guidance_volume,
+            write_response_command=0x49,
+            write_response_type=0x20,
+            write_decoder=partial(
+                decode_signed_byte, command=0x49, item_type=0x20
+            ),
         ),
         FeatureSpec(
             "le_audio_status",
@@ -252,7 +290,7 @@ FEATURES: dict[str, FeatureSpec] = {
 }
 
 
-# 쓰기 payload가 실기기에서 왕복 검증되기 전까지 모든 정식 항목은 읽기 전용이다.
+# 실기기 왕복 검증을 통과하지 않은 탐색 항목은 읽기 전용이다.
 DISCOVERY_FEATURES: dict[str, FeatureSpec] = {
     "turn_key_equalizer": FeatureSpec(
         "turn_key_equalizer",
