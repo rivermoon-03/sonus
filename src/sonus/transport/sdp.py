@@ -84,21 +84,19 @@ def parse_rfcomm_channel(response: bytes) -> int:
     if not response or response[0] != _PDU_SERVICE_SEARCH_ATTRIBUTE_RESPONSE:
         raise SdpLookupError("not a ServiceSearchAttributeResponse")
 
-    # Header: PDU ID(1) TxId(2) ParamLen(2) AttrListByteCount(2)
+    # 헤더 뒤의 속성 목록 길이는 응답 전체 길이와 별도로 주어진다.
     body = response[5:]
     attr_list_byte_count = int.from_bytes(body[0:2], "big")
     attribute_list = body[2 : 2 + attr_list_byte_count]
 
-    # The response is DES { service record... }; real SDP servers commonly
-    # wrap each service record in another DES, while synthetic/simple
-    # responses may put the attributes directly in the outer sequence.
+    # 실제 BlueZ 응답은 서비스 레코드를 DES로 한 번 더 감싸는 경우가 있다.
     offset, outer_len = _read_des_header(attribute_list, 0)
     attributes = attribute_list[offset : offset + outer_len]
     if attributes and attributes[0] in (_DES_UINT8_LEN, _DES_UINT16_LEN):
         record_start, record_len = _read_des_header(attributes, 0)
         attributes = attributes[record_start : record_start + record_len]
 
-    # uint16 attribute ID: type byte 0x09 + 2 bytes
+    # uint16 속성 ID는 자료형 표식 0x09 뒤에 2바이트 값이 온다.
     offset = 0
     if not attributes or attributes[offset] != 0x09:
         raise SdpLookupError("expected uint16 attribute ID")

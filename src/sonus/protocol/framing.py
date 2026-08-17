@@ -40,6 +40,7 @@ def _checksum(data: bytes) -> int:
 def _stuff(data: bytes) -> bytes:
     out = bytearray()
     for byte in data:
+        # 경계·이스케이프 값은 0x10을 빼서 본문 표식과 구분한다.
         if byte in _SPECIAL_BYTES:
             out.extend((ESCAPE, byte - 0x10))
         else:
@@ -124,6 +125,7 @@ class FrameStreamDecoder:
 
     def feed(self, data: bytes) -> list[Frame]:
         self._buffer.extend(data)
+        # 앞선 호출에서 오류 직전까지 완성한 데이터 묶음도 다음 호출에 돌려준다.
         frames, self._ready = self._ready, []
 
         try:
@@ -145,6 +147,7 @@ class FrameStreamDecoder:
                     return frames
 
                 if self._buffer[end] == START:
+                    # 손상된 후보 안의 새 START는 다음 정상 후보의 시작일 수 있다.
                     del self._buffer[:end]
                     raise FrameFormatError("unescaped frame marker in body")
 
