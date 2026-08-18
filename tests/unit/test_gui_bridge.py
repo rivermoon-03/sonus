@@ -98,7 +98,10 @@ def test_bridge_rejects_write_before_disclaimer_or_for_read_only_feature(tmp_pat
 
     bridge.setFeature("dsee", "true")
     bridge.acceptDisclaimer()
-    bridge.setFeature("noise_control", '{}')
+    # safe_listening's GET reflects device support, not a stored setting, so it
+    # can never be write-verified and stays permanently read-only (unlike
+    # noise_control, which is conditionally writable while worn).
+    bridge.setFeature("safe_listening", '{}')
 
     assert requests == []
     assert messages == [
@@ -124,6 +127,16 @@ def test_bridge_requests_bluetooth_device_listing(tmp_path):
     bridge.devicesRequested.connect(lambda: requests.append(True))
 
     bridge.requestDevices()
+
+    assert requests == [True]
+
+
+def test_bridge_requests_debug_state(tmp_path):
+    bridge = make_bridge(tmp_path)
+    requests = []
+    bridge.debugRequested.connect(lambda: requests.append(True))
+
+    bridge.requestDebugState()
 
     assert requests == [True]
 

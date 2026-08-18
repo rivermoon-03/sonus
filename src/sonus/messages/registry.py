@@ -24,6 +24,7 @@ from sonus.messages.codec import (
     encode_connection_mode,
     encode_dsee,
     encode_equalizer,
+    encode_noise_control,
     encode_speak_to_chat,
     encode_system_toggle,
     encode_voice_guidance,
@@ -98,6 +99,10 @@ FEATURES: dict[str, FeatureSpec] = {
             decode_codec,
             function_id=0x12,
         ),
+        # 2026-08-17 실기기 검증: 착용 중에는 mode/ambient_level 쓰기·재조회·원복이
+        # 모두 일치했다. 미착용 상태에서는 GET의 enabled가 저장 설정이 아니라 현재
+        # 운용 상태로 정규화되어 검증이 불가능하므로, 소비자(GUI 등)는 wearing_status
+        # 가 "worn"일 때만 쓰기를 노출해야 한다. docs/protocol/README.md 참조.
         FeatureSpec(
             "noise_control",
             "노이즈 제어",
@@ -105,8 +110,9 @@ FEATURES: dict[str, FeatureSpec] = {
             0x67,
             0x19,
             decode_noise_control,
-            Safety.READ_ONLY,
+            Safety.REVERSIBLE,
             function_id=0x6D,
+            encoder=encode_noise_control,
         ),
         FeatureSpec(
             "equalizer",
