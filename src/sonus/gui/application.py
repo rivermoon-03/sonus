@@ -19,7 +19,21 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QMenu, QSystemTrayIcon
 from sonus.gui.bridge import GuiBridge
 from sonus.gui.devices import parse_bluetoothctl_devices
 from sonus.gui.settings import GuiSettings
+from sonus.gui.state import (
+    DEBUG_FEATURE_KEYS,
+    QUICK_FEATURE_KEYS,
+    battery_status_label,
+    connection_status_label,
+)
 from sonus.gui.worker import DeviceReadWorker, DeviceWriteWorker
+
+
+def _default_debug_worker(mac: str, channel: int) -> QObject:
+    return DeviceReadWorker(mac, channel, keys=DEBUG_FEATURE_KEYS)
+
+
+def _default_quick_worker(mac: str, channel: int) -> QObject:
+    return DeviceReadWorker(mac, channel, keys=QUICK_FEATURE_KEYS)
 
 
 def web_index_path() -> Path:
@@ -36,6 +50,8 @@ class GuiController(QObject):
         *,
         worker_factory: Callable[[str, int], QObject] = DeviceReadWorker,
         write_worker_factory: Callable[..., QObject] = DeviceWriteWorker,
+        debug_worker_factory: Callable[[str, int], QObject] = _default_debug_worker,
+        quick_worker_factory: Callable[[str, int], QObject] = _default_quick_worker,
         device_lister: Callable[[], str] | None = None,
         parent: QObject | None = None,
     ) -> None:
@@ -43,6 +59,8 @@ class GuiController(QObject):
         self.bridge = bridge
         self._worker_factory = worker_factory
         self._write_worker_factory = write_worker_factory
+        self._debug_worker_factory = debug_worker_factory
+        self._quick_worker_factory = quick_worker_factory
         self._device_lister = device_lister or self._list_devices
         self._thread: QThread | None = None
         self._worker: QObject | None = None
@@ -50,6 +68,8 @@ class GuiController(QObject):
         bridge.connectRequested.connect(self.start_read)
         bridge.featureWriteRequested.connect(self.start_write)
         bridge.devicesRequested.connect(self.list_devices)
+        bridge.debugRequested.connect(self.start_debug_read)
+        bridge.quickRequested.connect(self.start_quick_read)
 
     @staticmethod
     def _list_devices() -> str:
@@ -87,6 +107,63 @@ class GuiController(QObject):
         worker.connected.connect(lambda: self.bridge.emit_connection("connected"))
         worker.featureReady.connect(self.bridge.featureState.emit)
         worker.failed.connect(lambda message: self.bridge.emit_connection("failed", message))
+        worker.finished.connect(thread.quit)
+        worker.finished.connect(worker.deleteLater)
+        thread.finished.connect(self._read_finished)
+        thread.finished.connect(thread.deleteLater)
+        self._thread = thread
+        self._worker = worker
+        thread.start()
+
+    @pyqtSlot()
+    def start_debug_read(self) -> None:
+        if self._busy:
+            self.bridge.userMessage.emit("이미 헤드셋 정보를 읽고 있습니다.")
+            return
+        mac = self.bridge.settings.device_mac
+        channel = self.bridge.settings.channel
+        if not mac or channel is None:
+            self.bridge.userMessage.emit("먼저 헤드셋을 연결해 주세요.")
+            return
+        self._busy = True
+        thread = QThread(self)
+        worker = self._debug_worker_factory(mac, channel)
+        worker.moveToThread(thread)
+        thread.started.connect(worker.run)
+        # Not wired to connecting/connected: this fires every few seconds while
+        # the debug tab is open, and each read opens its own fresh Bluetooth
+        # connection -- routing that through connectionState would flicker the
+        # "연결됨" status pill every poll. A genuine failure still surfaces.
+        worker.featureReady.connect(self.bridge.featureState.emit)
+        worker.failed.connect(lambda message: self.bridge.emit_connection("failed", message))
+        worker.finished.connect(thread.quit)
+        worker.finished.connect(worker.deleteLater)
+        thread.finished.connect(self._read_finished)
+        thread.finished.connect(thread.deleteLater)
+        self._thread = thread
+        self._worker = worker
+        thread.start()
+
+    @pyqtSlot()
+    def start_quick_read(self) -> None:
+        # Silent background heartbeat (wearing status, battery) -- skip quietly on
+        # busy instead of toasting; the JS scheduler retries after the current
+        # operation's refreshFinished, so nothing is lost, just delayed slightly.
+        if self._busy:
+            return
+        mac = self.bridge.settings.device_mac
+        channel = self.bridge.settings.channel
+        if not mac or channel is None:
+            return
+        self._busy = True
+        thread = QThread(self)
+        worker = self._quick_worker_factory(mac, channel)
+        worker.moveToThread(thread)
+        thread.started.connect(worker.run)
+        worker.featureReady.connect(self.bridge.featureState.emit)
+        # Failures stay silent here too: this heartbeat runs every couple of
+        # seconds, and a real disconnect is already surfaced through whatever
+        # user-initiated action (refresh, write, debug read) notices it first.
         worker.finished.connect(thread.quit)
         worker.finished.connect(worker.deleteLater)
         thread.finished.connect(self._read_finished)
@@ -177,17 +254,25 @@ class SonusWindow(QMainWindow):
         self.setCentralWidget(self.web_view)
 
         self.tray: QSystemTrayIcon | None = None
+        self._tray_status_action: QAction | None = None
+        self._connection_status = "연결 대기"
+        self._battery_status = "배터리 확인 중"
         if QSystemTrayIcon.isSystemTrayAvailable():
             self._create_tray()
+        self.bridge.connectionState.connect(self._on_tray_connection_state)
+        self.bridge.featureState.connect(self._on_tray_feature_state)
 
     def _create_tray(self) -> None:
         self.tray = QSystemTrayIcon(application_icon(), self)
-        self.tray.setToolTip("Sonus · WH-1000XM6 제어")
         menu = QMenu()
+        self._tray_status_action = QAction("", menu)
+        self._tray_status_action.setEnabled(False)
         show_action = QAction("Sonus 열기", menu)
         show_action.triggered.connect(self.show_from_tray)
         quit_action = QAction("종료", menu)
         quit_action.triggered.connect(self.quit_application)
+        menu.addAction(self._tray_status_action)
+        menu.addSeparator()
         menu.addAction(show_action)
         menu.addSeparator()
         menu.addAction(quit_action)
@@ -197,7 +282,37 @@ class SonusWindow(QMainWindow):
             if reason == QSystemTrayIcon.ActivationReason.Trigger
             else None
         )
+        self._refresh_tray_status()
         self.tray.show()
+
+    def _refresh_tray_status(self) -> None:
+        if not self.tray:
+            return
+        summary = f"{self._connection_status} · {self._battery_status}"
+        self.tray.setToolTip(f"Sonus · WH-1000XM6 · {summary}")
+        if self._tray_status_action:
+            self._tray_status_action.setText(summary)
+
+    @pyqtSlot(str)
+    def _on_tray_connection_state(self, payload: str) -> None:
+        try:
+            data = json.loads(payload)
+        except (TypeError, ValueError):
+            return
+        self._connection_status = connection_status_label(data.get("state"))
+        self._refresh_tray_status()
+
+    @pyqtSlot(str)
+    def _on_tray_feature_state(self, payload: str) -> None:
+        try:
+            data = json.loads(payload)
+        except (TypeError, ValueError):
+            return
+        label = battery_status_label(data)
+        if label is None:
+            return
+        self._battery_status = label
+        self._refresh_tray_status()
 
     @pyqtSlot()
     def show_from_tray(self) -> None:

@@ -38,7 +38,11 @@ def _alternate_value(key, original):
     if key in {"dsee", "auto_pause"}:
         return not original
     if key == "noise_control":
-        return {**original, "enabled": not original["enabled"]}
+        # Only ambient_level/mode are proven verifiable (2026-08-17, worn). Do not
+        # toggle "enabled" here -- its GET value is tied to wearing state, not a
+        # stored preference, so it cannot be write-verified (see registry.py).
+        level = original["ambient_level"]
+        return {**original, "ambient_level": level - 2 if level >= 3 else level + 2}
     if key == "equalizer":
         bands = list(original["bands"])
         bands[0] = bands[0] + 1 if bands[0] < 20 else bands[0] - 1
@@ -75,9 +79,13 @@ def _alternate_value(key, original):
         "auto_power_off",
         "voice_guidance",
         "voice_guidance_volume",
+        "noise_control",
     ],
 )
 def test_xm6_verified_write_is_restored(key):
+    # noise_control specifically requires the headset to be worn for the whole
+    # duration of this test -- taking it off mid-test changes what GET reports
+    # and will fail the restore-comparison (not a protocol bug, see registry.py).
     channel = find_rfcomm_channel(XM6_MAC, DEFAULT_SERVICE_UUID)
     connection = connect_with_retries(XM6_MAC, channel)
     try:

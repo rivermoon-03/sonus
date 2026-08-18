@@ -71,6 +71,93 @@ def test_controller_forwards_worker_events_to_read_only_bridge(tmp_path):
     assert finished == [True]
 
 
+def test_controller_forwards_debug_read_events(tmp_path):
+    app = QCoreApplication.instance() or QCoreApplication([])
+    settings = GuiSettings(
+        QSettings(str(tmp_path / "sonus.ini"), QSettings.Format.IniFormat)
+    )
+    settings.device_mac = "AA:BB:CC:DD:EE:FF"
+    settings.channel = 9
+    bridge = GuiBridge(settings)
+    controller = GuiController(bridge, debug_worker_factory=lambda *_: ImmediateWorker())
+    features = []
+    connections = []
+    finished = []
+    bridge.featureState.connect(lambda payload: features.append(json.loads(payload)))
+    bridge.connectionState.connect(lambda value: connections.append(json.loads(value)))
+    bridge.refreshFinished.connect(lambda: finished.append(True))
+
+    bridge.requestDebugState()
+    deadline = 100
+    while not finished and deadline:
+        app.processEvents()
+        deadline -= 1
+
+    assert features[0]["key"] == "battery"
+    assert finished == [True]
+    # Runs every few seconds while the debug tab is open; must not flicker the
+    # connection-state pill each tick (see application.py comment).
+    assert connections == []
+
+
+def test_controller_debug_read_requires_saved_device(tmp_path):
+    settings = GuiSettings(
+        QSettings(str(tmp_path / "sonus.ini"), QSettings.Format.IniFormat)
+    )
+    bridge = GuiBridge(settings)
+    messages = []
+    bridge.userMessage.connect(messages.append)
+    controller = GuiController(bridge, debug_worker_factory=lambda *_: ImmediateWorker())
+
+    bridge.requestDebugState()
+
+    assert controller is not None
+    assert messages == ["먼저 헤드셋을 연결해 주세요."]
+
+
+def test_controller_forwards_quick_read_events_silently(tmp_path):
+    app = QCoreApplication.instance() or QCoreApplication([])
+    settings = GuiSettings(
+        QSettings(str(tmp_path / "sonus.ini"), QSettings.Format.IniFormat)
+    )
+    settings.device_mac = "AA:BB:CC:DD:EE:FF"
+    settings.channel = 9
+    bridge = GuiBridge(settings)
+    controller = GuiController(bridge, quick_worker_factory=lambda *_: ImmediateWorker())
+    features = []
+    connections = []
+    finished = []
+    bridge.featureState.connect(lambda payload: features.append(json.loads(payload)))
+    bridge.connectionState.connect(lambda value: connections.append(json.loads(value)))
+    bridge.refreshFinished.connect(lambda: finished.append(True))
+
+    bridge.requestQuickState()
+    deadline = 100
+    while not finished and deadline:
+        app.processEvents()
+        deadline -= 1
+
+    assert features[0]["key"] == "battery"
+    assert finished == [True]
+    # No connecting/connected/failed noise for this silent background heartbeat.
+    assert connections == []
+
+
+def test_controller_quick_read_skips_silently_without_saved_device(tmp_path):
+    settings = GuiSettings(
+        QSettings(str(tmp_path / "sonus.ini"), QSettings.Format.IniFormat)
+    )
+    bridge = GuiBridge(settings)
+    messages = []
+    bridge.userMessage.connect(messages.append)
+    controller = GuiController(bridge, quick_worker_factory=lambda *_: ImmediateWorker())
+
+    bridge.requestQuickState()
+
+    assert controller is not None
+    assert messages == []
+
+
 def test_controller_rejects_overlapping_refresh(tmp_path):
     settings = GuiSettings(
         QSettings(str(tmp_path / "sonus.ini"), QSettings.Format.IniFormat)

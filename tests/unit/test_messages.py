@@ -221,9 +221,22 @@ def test_candidate_registry_entries_match_their_write_notifications(key, notific
 
 
 def test_safe_listening_availability_queries_are_not_claimed_as_writable_settings():
-    assert FEATURES["noise_control"].writable is False
+    # safe_listening/safe_volume GET responses reflect device support, not the
+    # current setting, so write-verification is structurally impossible and they
+    # stay read-only regardless of any UI unlock state.
     assert FEATURES["safe_listening"].writable is False
     assert FEATURES["safe_volume"].writable is False
+
+
+def test_noise_control_write_is_ack_only_and_verified_by_a_followup_get():
+    # Promoted 2026-08-17 after a real WH-1000XM6 confirmed mode/ambient_level
+    # write -> reread -> restore -> reread all matched while worn. Consumers must
+    # still gate writes on wearing_status == "worn" (see registry.py comment).
+    feature = FEATURES["noise_control"]
+
+    assert feature.writable is True
+    assert feature.write_response_command is None
+    assert feature.write_response_type is None
 
 
 def test_equalizer_write_is_ack_only_and_verified_by_a_followup_get():

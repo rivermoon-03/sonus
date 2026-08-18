@@ -25,6 +25,8 @@ class GuiBridge(QObject):
     userMessage = pyqtSignal(str)
     connectRequested = pyqtSignal(str, int)
     devicesRequested = pyqtSignal()
+    debugRequested = pyqtSignal()
+    quickRequested = pyqtSignal()
     featureWriteRequested = pyqtSignal(str, str)
     quitRequested = pyqtSignal()
 
@@ -76,6 +78,14 @@ class GuiBridge(QObject):
     @pyqtSlot()
     def requestDevices(self) -> None:
         self.devicesRequested.emit()
+
+    @pyqtSlot()
+    def requestDebugState(self) -> None:
+        self.debugRequested.emit()
+
+    @pyqtSlot()
+    def requestQuickState(self) -> None:
+        self.quickRequested.emit()
 
     @pyqtSlot()
     def acceptDisclaimer(self) -> None:
