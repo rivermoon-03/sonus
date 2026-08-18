@@ -26,14 +26,17 @@ Sony Sound Connect 앱 없이도 Linux에서 헤드셋 상태를 확인하고 AN
 - ACK, 요청 응답과 비동기 알림 세션 처리
 - 모델, 펌웨어, 배터리, 코덱과 주요 XM6 설정 조회
 - `status`, `settings`, `get`, `set`, `discover` 통합 CLI
-- 안전 등급 기반 쓰기 차단과 8개 설정의 자동 검증·원상 복원
+- 안전 등급 기반 쓰기 차단과 9개 설정의 자동 검증·원상 복원 (노이즈 제어는
+  착용 중에만)
 - 실기기 캡처 테스트 자료와 하드웨어 독립 단위 테스트
-- 라이트/다크 테마, 시스템 트레이와 실시간 상태 갱신을 갖춘 PyQt6 GUI
-- 최초 Disclaimer 동의, 저장 기기 선택과 검증된 설정 쓰기를 갖춘 GUI
+- 라이트/다크 테마, 시스템 트레이 실시간 상태와 배경 폴링을 갖춘 PyQt6 GUI
+- 최초 Disclaimer 동의, 저장 기기 선택, 잠금 해제 확인과 검증된 설정 쓰기를
+  갖춘 GUI
+- 배터리·주변음 스파크라인과 원시 응답을 보여주는 디버그 패널
 
 확장 예정:
 
-- ANC·앰비언트 사운드의 저장 상태를 분리 조회하는 안전한 제어
+- 안전 청취처럼 저장 상태를 분리 조회하지 못하는 항목의 안전한 제어
 - 멀티포인트, 터치 제어 등 추가 기기 설정
 
 ## 언어 및 주요 기술
@@ -58,17 +61,20 @@ Sony Sound Connect 앱 없이도 Linux에서 헤드셋 상태를 확인하고 AN
 git clone <repository-url> sonus
 cd sonus
 uv sync
+./run.sh
+```
 
-# 데스크톱 제어 앱 (기기 주소를 미리 입력할 수도 있음)
-uv run sonus-gui --mac 58:18:62:1F:C9:CB --channel 9
+기기 주소를 미리 알고 있으면 `./run.sh --mac 58:18:62:1F:C9:CB --channel 9`처럼
+넘겨도 된다. 생략하면 GUI에서 등록된 기기 목록이나 직접 입력으로 연결할 수 있다.
 
-# 저장소 루트의 간편 실행기 (같은 GUI 진입점)
-./run.sh --mac 58:18:62:1F:C9:CB --channel 9
+<details>
+<summary>CLI와 개발용 명령</summary>
 
-# RFCOMM 채널 탐색과 연결 확인
+```bash
+# RFCOMM 채널 탐색과 연결 확인 (채널을 모를 때 SDP로 자동 탐색)
 uv run sonus probe --mac <HEADSET_MAC>
 
-# 채널을 알고 있을 때 상태와 모든 확인된 설정 조회
+# 상태와 확인된 모든 설정 조회
 uv run sonus status --mac <HEADSET_MAC> --channel 9
 uv run sonus settings --mac <HEADSET_MAC> --channel 9 --json
 
@@ -76,24 +82,21 @@ uv run sonus settings --mac <HEADSET_MAC> --channel 9 --json
 uv run sonus get --mac <HEADSET_MAC> --channel 9 battery
 uv run sonus set --mac <HEADSET_MAC> --channel 9 dsee auto
 
-# 채널 생략 시 Sony 서비스 SDP로 자동 탐색
-uv run sonus status --mac <HEADSET_MAC>
-
-# 단위 테스트
+# 단위 테스트 / 실기기 테스트
 uv run pytest
-
-# 실기기 테스트
 uv run pytest -m hardware
 ```
+
+</details>
 
 정상 연결 시 RFCOMM channel과 protocol-info payload가 출력된다. 정식 쓰기는
 실기기에서 변경·재조회·원상 복원·재조회를 확인한 DSEE, EQ, 자동 일시정지,
 Speak-to-Chat, 연결 모드, 자동 전원 끄기, 음성 안내와 안내 음량만 허용한다.
 
 GUI는 최초 1회 설정 변경 안내에 동의한 뒤 같은 검증 API로 설정을 적용하고 재조회한다.
-ANC와 안전 청취처럼 원상 복원을 증명하지 못한 항목은 계속 조회 전용이다. 주소를
-생략하면 등록 기기 목록 또는 직접 입력으로 연결할 수 있고 이후 동의, 테마, 기기와
-창 크기를 기억한다.
+노이즈 제어(모드·주변음 레벨)는 착용 중일 때만 쓰기를 허용하며, 안전 청취처럼
+원상 복원을 증명하지 못한 항목은 계속 조회 전용이다. 주소를 생략하면 등록 기기
+목록 또는 직접 입력으로 연결할 수 있고 이후 동의, 테마, 기기와 창 크기를 기억한다.
 
 `sniff`와 `send`는 프로토콜 개발용 저수준 도구다. 아직 확인되지 않은 명령을
 실기기에 전송하면 설정이 바뀔 수 있으므로 캡처와 명령 의미를 확인한 뒤 사용한다.
