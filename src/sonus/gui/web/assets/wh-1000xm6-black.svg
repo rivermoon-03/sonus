@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-labelledby="title description">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 0 520 600" role="img" aria-labelledby="title description">
   <title id="title">Sony WH-1000XM6 black headset illustration</title>
   <desc id="description">A restrained vector illustration of black over-ear headphones in a three-quarter view.</desc>
   <defs>
@@ -53,14 +53,18 @@
     <path d="M176 319c-8-75 14-132 66-167 47-31 109-29 154 5"
           fill="none" stroke="url(#highlight)" stroke-width="5" stroke-linecap="round"/>
 
-    <g transform="rotate(-7 182 375)">
-      <rect x="143" y="310" width="73" height="119" rx="29" fill="url(#band)"/>
-      <rect x="157" y="376" width="51" height="104" rx="22" fill="#15181b"/>
-      <path d="M171 380v79" stroke="#64696e" stroke-width="4" stroke-linecap="round" opacity=".65"/>
-      <ellipse cx="180" cy="430" rx="83" ry="108" fill="url(#rim)"/>
-      <ellipse cx="177" cy="429" rx="70" ry="94" fill="url(#cupRear)"/>
-      <path d="M134 354c17-15 44-23 64-16" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="5" stroke-linecap="round"/>
-      <ellipse cx="167" cy="416" rx="45" ry="69" fill="#0b0d0f" opacity=".23"/>
+    <g transform="translate(600,0) scale(-1,1)">
+      <g transform="rotate(8 413 400)">
+        <rect x="384" y="294" width="70" height="123" rx="29" fill="url(#band)"/>
+        <path d="M399 345v69M442 344v70" stroke="#676c71" stroke-width="4" stroke-linecap="round" opacity=".72"/>
+        <path d="M391 367h59" stroke="#090a0c" stroke-width="13" stroke-linecap="round"/>
+        <ellipse cx="420" cy="420" rx="101" ry="129" fill="url(#rim)"/>
+        <ellipse cx="414" cy="416" rx="87" ry="113" fill="url(#cupFront)"/>
+        <ellipse cx="408" cy="408" rx="62" ry="86" fill="#24272b"/>
+        <ellipse cx="400" cy="395" rx="47" ry="68" fill="url(#highlight)" opacity=".42"/>
+        <path d="M357 340c28-29 70-38 101-22" fill="none" stroke="#fff" stroke-opacity=".17" stroke-width="6" stroke-linecap="round"/>
+        <path d="M373 492c27 18 65 18 91-1" fill="none" stroke="#000" stroke-opacity=".36" stroke-width="5" stroke-linecap="round"/>
+      </g>
     </g>
 
     <g transform="rotate(8 413 400)">
@@ -75,12 +79,5 @@
       <path d="M373 492c27 18 65 18 91-1" fill="none" stroke="#000" stroke-opacity=".36" stroke-width="5" stroke-linecap="round"/>
       <circle cx="489" cy="428" r="3.5" fill="#2563eb" opacity=".9"/>
     </g>
-  </g>
-
-  <g opacity=".64">
-    <path d="M122 497h74" stroke="#2563eb" stroke-width="2"/>
-    <path d="M462 518h36" stroke="#2563eb" stroke-width="2"/>
-    <circle cx="112" cy="497" r="3" fill="#2563eb"/>
-    <circle cx="508" cy="518" r="3" fill="#2563eb"/>
   </g>
 </svg>
