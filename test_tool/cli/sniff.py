@@ -1,4 +1,4 @@
-# src/sonus/cli/sniff.py
+# test_tool/cli/sniff.py
 from __future__ import annotations
 
 import json

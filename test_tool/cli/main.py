@@ -1,19 +1,19 @@
-# src/sonus/cli/main.py
+# test_tool/cli/main.py
 from __future__ import annotations
 
 import argparse
 import sys
 
-from sonus.cli.device import (
+from test_tool.cli.device import (
     run_discover,
     run_get,
     run_set,
     run_settings,
     run_status,
 )
-from sonus.cli.probe import run_probe
-from sonus.cli.send import run_send
-from sonus.cli.sniff import run_sniff
+from test_tool.cli.probe import run_probe
+from test_tool.cli.send import run_send
+from test_tool.cli.sniff import run_sniff
 from sonus.protocol.framing import FrameChecksumError, FrameFormatError
 from sonus.protocol.session import ProtocolTimeoutError
 from sonus.device.xm6 import DeviceError

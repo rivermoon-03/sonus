@@ -1,4 +1,4 @@
-from sonus.cli.send import run_send
+from test_tool.cli.send import run_send
 from sonus.protocol.framing import DATA_TYPE_MDR, Frame
 
 

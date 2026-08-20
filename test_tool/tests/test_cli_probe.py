@@ -1,4 +1,4 @@
-from sonus.cli.probe import run_probe
+from test_tool.cli.probe import run_probe
 from sonus.protocol.framing import DATA_TYPE_MDR, Frame
 
 

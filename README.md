@@ -66,17 +66,20 @@ uv sync
 <details>
 <summary>CLI와 개발용 명령</summary>
 
+CLI는 GUI와 별개로 `test_tool/` 아래에 있는 개발용 도구다. 설치되는 패키지에는
+포함되지 않으며 `python -m`으로 직접 실행한다.
+
 ```bash
 # RFCOMM 채널 탐색과 연결 확인 (채널을 모를 때 SDP로 자동 탐색)
-uv run sonus probe --mac <HEADSET_MAC>
+uv run python -m test_tool.cli.main probe --mac <HEADSET_MAC>
 
 # 상태와 확인된 모든 설정 조회
-uv run sonus status --mac <HEADSET_MAC> --channel 9
-uv run sonus settings --mac <HEADSET_MAC> --channel 9 --json
+uv run python -m test_tool.cli.main status --mac <HEADSET_MAC> --channel 9
+uv run python -m test_tool.cli.main settings --mac <HEADSET_MAC> --channel 9 --json
 
 # 항목 하나 조회 또는 검증된 가역 설정 변경
-uv run sonus get --mac <HEADSET_MAC> --channel 9 battery
-uv run sonus set --mac <HEADSET_MAC> --channel 9 dsee auto
+uv run python -m test_tool.cli.main get --mac <HEADSET_MAC> --channel 9 battery
+uv run python -m test_tool.cli.main set --mac <HEADSET_MAC> --channel 9 dsee auto
 
 # 단위 테스트 / 실기기 테스트
 uv run pytest
@@ -94,8 +97,9 @@ GUI는 최초 1회 설정 변경 안내에 동의한 뒤 같은 검증 API로 �
 원상 복원을 증명하지 못한 항목은 계속 조회 전용이다. 주소를 생략하면 등록 기기
 목록 또는 직접 입력으로 연결할 수 있고 이후 동의, 테마, 기기와 창 크기를 기억한다.
 
-`sniff`와 `send`는 프로토콜 개발용 저수준 도구다. 아직 확인되지 않은 명령을
-실기기에 전송하면 설정이 바뀔 수 있으므로 캡처와 명령 의미를 확인한 뒤 사용한다.
+`sniff`와 `send`는 프로토콜 개발용 저수준 도구다(`uv run python -m test_tool.cli.main
+sniff ...` / `... send ...`). 아직 확인되지 않은 명령을 실기기에 전송하면 설정이
+바뀔 수 있으므로 캡처와 명령 의미를 확인한 뒤 사용한다.
 
 ## Disclaimer
 

@@ -6,63 +6,114 @@
   <link rel="stylesheet" href="styles.css"><script src="qrc:///qtwebchannel/qwebchannel.js"></script><script type="module" src="app.js"></script>
 </head>
 <body>
-  <aside class="sidebar">
-    <button class="brand nav-link" data-view="status"><span class="brand-mark"><i></i><i></i><i></i></span><b>Sonus</b></button>
-    <nav aria-label="주 메뉴">
-      <button class="nav-link active" data-view="status"><svg><use href="assets/lucide.svg#activity"/></svg>상태</button>
-      <button class="nav-link" data-view="sound"><svg><use href="assets/lucide.svg#volume-2"/></svg>사운드 및 설정</button>
-      <button class="nav-link" data-view="equalizer"><svg><use href="assets/lucide.svg#sliders"/></svg>이퀄라이저</button>
-      <button class="nav-link" data-view="about"><svg><use href="assets/lucide.svg#info"/></svg>정보 및 디버그</button>
-    </nav>
-    <div class="side-status"><i data-status-dot></i><div><strong data-side-status>연결 대기</strong><small data-device-address>기기 미선택</small></div></div>
-  </aside>
-  <div class="shell">
-    <header class="topbar"><div class="crumb"><strong>Sonus</strong><span>/</span><span data-view-title>상태</span></div><div class="top-actions">
-      <button type="button" class="verified-badge" data-unlock-toggle title="눌러서 검증된 설정의 쓰기 잠금을 해제하거나 다시 잠급니다"><svg data-unlock-icon><use href="assets/lucide.svg#lock"/></svg><span data-unlock-label>검증된 설정만 쓰기</span></button>
-      <button class="icon-button" data-refresh title="새로고침"><svg><use href="assets/lucide.svg#refresh-cw"/></svg></button>
-      <button class="icon-button" data-theme-toggle title="테마 전환"><svg><use href="assets/lucide.svg#sun"/></svg></button>
-    </div></header>
+  <div class="app">
+    <header class="topbar">
+      <span class="brand-mark"><i></i><i></i><i></i></span>
+      <div class="top-actions">
+        <button type="button" class="verified-badge" data-unlock-toggle title="눌러서 검증된 설정의 쓰기 잠금을 해제하거나 다시 잠급니다"><svg data-unlock-icon><use href="assets/lucide.svg#lock"/></svg><span data-unlock-label>검증된 설정만 쓰기</span></button>
+        <button class="icon-button" data-refresh title="새로고침"><svg><use href="assets/lucide.svg#refresh-cw"/></svg></button>
+        <button class="icon-button" data-theme-toggle title="테마 전환"><svg><use href="assets/lucide.svg#sun"/></svg></button>
+      </div>
+    </header>
     <main class="content-scroll">
-      <section class="view active" data-view-panel="status"><div class="page-heading"><div><h1>헤드셋 상태</h1><p>WH-1000XM6에서 읽은 최신 정보</p></div><span data-sync-time>동기화 전</span></div>
-        <article class="device-summary panel"><img src="assets/wh-1000xm6-black.svg" alt="WH-1000XM6"><div><span class="connection-label"><i></i><span data-connection-label>연결 대기</span></span><h2 data-feature="model_name">WH-1000XM6</h2><p><span data-feature="codec">—</span> · <span data-feature="connection_mode">—</span></p></div><dl>
-          <div><dt><svg><use href="assets/lucide.svg#battery"/></svg>배터리</dt><dd><span data-feature="battery">—</span><div class="meter" data-battery-meter title="배터리 잔량 게이지"><i data-battery-fill></i></div></dd></div>
-          <div><dt><svg><use href="assets/lucide.svg#cpu"/></svg>펌웨어</dt><dd data-feature="firmware_version">—</dd></div>
-          <div><dt><i class="wear-dot" data-wear-dot></i>착용</dt><dd data-feature="wearing_status">—</dd></div>
-        </dl></article>
-        <article class="panel status-noise-card" title="노이즈 제어 요약 (자세한 조절은 사운드 및 설정 탭에서)">
-          <svg><use href="assets/lucide.svg#volume-2"/></svg>
-          <strong>노이즈 제어</strong>
-          <span data-status-noise-mode>확인 중</span>
-          <div class="meter" data-status-noise-meter title="주변 소리 레벨 게이지 (0–20, 꺼짐 상태에서는 표시하지 않음)"><i data-status-noise-fill></i></div>
-          <span class="meter-value" data-status-noise-level>—</span>
+      <section class="view active" data-view-panel="status">
+        <article class="hero-focus">
+          <div class="hero-focus-top"><span class="connection-pill" data-status-dot><span data-connection-label>연결 대기</span></span></div>
+          <h1 class="hero-focus-title" data-feature="model_name">WH-1000XM6</h1>
+          <div class="ring-wrap">
+            <img class="ring-headset" src="assets/wh-1000xm6-black.svg" alt="WH-1000XM6">
+            <svg class="battery-ring" viewBox="0 0 172 172" data-battery-meter title="배터리 잔량">
+              <circle class="ring-track" cx="86" cy="86" r="74"/>
+              <circle class="ring-fill" data-battery-ring-fill cx="86" cy="86" r="74"/>
+            </svg>
+          </div>
+          <p class="ring-sub">
+            <svg class="ring-bolt hidden" data-battery-bolt viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6z" fill="currentColor" stroke="none"/></svg>
+            <span data-feature="battery">—</span> · <span data-feature="codec">—</span>
+          </p>
+          <div class="chip-row">
+            <span class="chip"><svg><use href="assets/lucide.svg#cpu"/></svg><strong data-feature="firmware_version">—</strong></span>
+            <span class="chip" data-wear-chip><svg><use href="assets/lucide.svg#activity"/></svg><strong data-feature="wearing_status">—</strong></span>
+            <span class="chip"><svg><use href="assets/lucide.svg#bluetooth"/></svg><strong data-feature="connection_mode">—</strong></span>
+          </div>
         </article>
-        <div class="masked-row">
-          <button type="button" class="icon-button" data-mask-toggle title="Bluetooth 주소·RFCOMM 채널 표시 또는 숨기기"><svg><use href="assets/lucide.svg#lock"/></svg></button>
-          <article class="panel info-grid"><div><small>Bluetooth 주소</small><strong class="mono" data-current-mac>—</strong></div><div><small>RFCOMM 채널</small><strong data-current-channel>—</strong></div><div><small>DSEE Extreme</small><strong data-feature="dsee">—</strong></div></article>
-        </div>
-      </section>
-      <section class="view" data-view-panel="sound"><div class="page-heading"><div><h1>사운드 및 설정</h1><p>검증된 기능은 즉시 적용 후 재조회합니다.</p></div></div>
-        <p class="inline-note warn hidden" data-lock-note>잠금이 걸려 있어 이 화면의 설정을 변경할 수 없습니다. 우측 상단의 "검증된 설정만 쓰기"를 눌러 잠금을 해제하세요.</p>
-        <h2 class="section-group">사운드</h2>
+        <h2 class="section-group">노이즈 제어</h2>
         <p class="inline-note hidden" data-noise-lock-note>헤드셋을 착용해야 노이즈 제어를 변경할 수 있습니다. 벗은 상태에서는 실제 설정값을 정확히 읽거나 검증할 수 없습니다.</p>
+        <article class="panel noise-panel" title="착용 중일 때만 검증된 값을 쓸 수 있습니다. 벗은 상태의 값은 실제 설정이 아니라 현재 운용 상태만 나타냅니다.">
+          <div class="tri" data-noise-tri>
+            <div class="tri-track">
+              <span class="tri-tick" style="left:0%"></span>
+              <span class="tri-tick" style="left:50%"></span>
+              <span class="tri-tick" style="left:100%"></span>
+              <span class="tri-thumb" data-noise-tri-thumb><svg><use data-noise-tri-icon href="assets/lucide.svg#shield"/></svg></span>
+              <div class="tri-zones">
+                <button type="button" class="tri-zone" data-noise-tri-zone="0" aria-label="노이즈 캔슬링"></button>
+                <button type="button" class="tri-zone" data-noise-tri-zone="1" aria-label="끄기"></button>
+                <button type="button" class="tri-zone" data-noise-tri-zone="2" aria-label="주변 소리"></button>
+              </div>
+            </div>
+            <div class="tri-labels">
+              <span data-noise-tri-label>노이즈 캔슬링</span>
+              <span data-noise-tri-label>끄기</span>
+              <span data-noise-tri-label>주변 소리</span>
+            </div>
+          </div>
+          <small data-noise-hint>확인 중</small>
+          <div class="level-row" data-noise-level-row title="주변 소리 모드일 때 외부 소리를 얼마나 들려줄지 정합니다 (0–20)">
+            <svg><use href="assets/lucide.svg#volume-2"/></svg>
+            <input type="range" min="0" max="20" data-noise-level-range>
+            <output data-noise-level-output>—</output>
+          </div>
+        </article>
+        <p class="sync-note" data-sync-time>동기화 전</p>
+      </section>
+
+      <section class="view" data-view-panel="sound">
+        <div class="page-heading"><h1>사운드</h1><p>검증된 기능은 즉시 적용 후 재조회합니다.</p></div>
+        <h2 class="section-group">노이즈 제어</h2>
+        <p class="inline-note hidden" data-noise-lock-note>헤드셋을 착용해야 노이즈 제어를 변경할 수 있습니다. 벗은 상태에서는 실제 설정값을 정확히 읽거나 검증할 수 없습니다.</p>
+        <article class="panel noise-panel" title="착용 중일 때만 검증된 값을 쓸 수 있습니다. 벗은 상태의 값은 실제 설정이 아니라 현재 운용 상태만 나타냅니다.">
+          <div class="tri" data-noise-tri>
+            <div class="tri-track">
+              <span class="tri-tick" style="left:0%"></span>
+              <span class="tri-tick" style="left:50%"></span>
+              <span class="tri-tick" style="left:100%"></span>
+              <span class="tri-thumb" data-noise-tri-thumb><svg><use data-noise-tri-icon href="assets/lucide.svg#shield"/></svg></span>
+              <div class="tri-zones">
+                <button type="button" class="tri-zone" data-noise-tri-zone="0" aria-label="노이즈 캔슬링"></button>
+                <button type="button" class="tri-zone" data-noise-tri-zone="1" aria-label="끄기"></button>
+                <button type="button" class="tri-zone" data-noise-tri-zone="2" aria-label="주변 소리"></button>
+              </div>
+            </div>
+            <div class="tri-labels">
+              <span data-noise-tri-label>노이즈 캔슬링</span>
+              <span data-noise-tri-label>끄기</span>
+              <span data-noise-tri-label>주변 소리</span>
+            </div>
+          </div>
+          <small data-noise-hint>확인 중</small>
+          <div class="level-row" data-noise-level-row title="주변 소리 모드일 때 외부 소리를 얼마나 들려줄지 정합니다 (0–20)">
+            <svg><use href="assets/lucide.svg#volume-2"/></svg>
+            <input type="range" min="0" max="20" data-noise-level-range>
+            <output data-noise-level-output>—</output>
+          </div>
+        </article>
+        <h2 class="section-group">설정</h2>
+        <p class="inline-note warn hidden" data-lock-note>잠금이 걸려 있어 이 화면의 설정을 변경할 수 없습니다. 상단의 "검증된 설정만 쓰기"를 눌러 잠금을 해제하세요.</p>
         <article class="panel settings-list">
-          <label class="setting-row" title="착용 중일 때만 검증된 값을 쓸 수 있습니다. 벗은 상태의 값은 실제 설정이 아니라 현재 운용 상태만 나타냅니다.">
-            <div><strong>노이즈 제어 모드</strong><small data-noise-hint>확인 중</small></div>
-            <select data-noise-mode-select>
-              <option value="noise_cancelling">노이즈 캔슬링</option>
-              <option value="ambient_sound">주변 소리</option>
-            </select>
-          </label>
-          <label class="setting-row" title="주변 소리 모드일 때 외부 소리를 얼마나 들려줄지 정합니다 (0–20). 착용 중일 때만 변경할 수 있습니다.">
-            <div><strong>주변 소리 레벨</strong><small>0에서 20 사이</small></div>
-            <div class="range-with-output"><input type="range" min="0" max="20" data-noise-level-range><output data-noise-level-output>—</output></div>
-          </label>
           <label class="setting-row" title="압축된 음원의 고음역을 보완해 원음에 가깝게 재생합니다."><div><strong>DSEE Extreme</strong><small>압축 음원의 고음역 보완</small></div><input type="checkbox" data-toggle="dsee"><span class="switch"></span></label>
           <label class="setting-row" title="말하기를 감지하면 재생을 자동으로 일시정지합니다."><div><strong>Speak-to-Chat</strong><small>말하기 감지 시 재생 일시정지</small></div><input type="checkbox" data-toggle="speak_to_chat"><span class="switch"></span></label>
           <label class="setting-row" title="헤드셋을 벗으면 재생을 자동으로 멈춥니다."><div><strong>착용 감지 자동 일시정지</strong><small>헤드셋을 벗으면 재생 정지</small></div><input type="checkbox" data-toggle="auto_pause"><span class="switch"></span></label>
           <label class="setting-row" title="음질 우선은 고음질 코덱을, 연결 우선은 끊김 없는 연결을 우선합니다."><div><strong>Bluetooth 연결 모드</strong><small>음질 또는 연결 안정성 우선</small></div><select data-select="connection_mode"><option value="sound_quality">음질 우선</option><option value="stable_connection">연결 우선</option></select></label>
         </article>
-        <h2 class="section-group">편의 기능</h2>
+        <h2 class="section-group">이퀄라이저</h2>
+        <p class="inline-note warn hidden" data-lock-note>잠금이 걸려 있어 이 화면의 설정을 변경할 수 없습니다. 상단의 "검증된 설정만 쓰기"를 눌러 잠금을 해제하세요.</p>
+        <article class="panel eq-panel"><span class="eq-preset" data-eq-preset>프리셋 —</span><div class="eq-bars" data-eq-bars></div><div class="eq-axis"><span>01</span><span>02</span><span>03</span><span>04</span><span>05</span><span>06</span><span>07</span><span>08</span><span>09</span><span>10</span></div></article>
+      </section>
+
+      <section class="view" data-view-panel="device">
+        <div class="page-heading"><h1>기기 설정</h1><p>헤드셋 편의 기능</p></div>
+        <p class="inline-note warn hidden" data-lock-note>잠금이 걸려 있어 이 화면의 설정을 변경할 수 없습니다. 상단의 "검증된 설정만 쓰기"를 눌러 잠금을 해제하세요.</p>
         <article class="panel settings-list">
           <label class="setting-row" title="헤드셋을 벗은 채 일정 시간이 지나면 자동으로 전원을 끕니다."><div><strong>착용 해제 시 자동 전원 끄기</strong><small>마지막 시간 설정은 그대로 보존</small></div><input type="checkbox" data-toggle="auto_power_off"><span class="switch"></span></label>
           <label class="setting-row" title="배터리·연결 상태 변화를 음성으로 안내합니다."><div><strong>음성 안내</strong><small data-feature="voice_guidance">—</small></div><input type="checkbox" data-toggle="voice_guidance"><span class="switch"></span></label>
@@ -71,10 +122,9 @@
           <div class="setting-row readonly" title="이 항목의 응답은 현재 설정값이 아니라 기기의 지원 여부를 나타내 조회만 가능합니다."><div><strong>안전 음량 제어</strong><small>기능 지원 여부만 확인 가능 (현재 설정값 아님)</small></div><output data-support="safe_volume">—</output><svg><use href="assets/lucide.svg#lock"/></svg></div>
         </article>
       </section>
-      <section class="view" data-view-panel="equalizer"><div class="page-heading"><div><h1>이퀄라이저</h1><p>밴드를 놓으면 전체 프로필을 검증 적용합니다.</p></div><strong data-eq-preset>프리셋 —</strong></div>
-        <p class="inline-note warn hidden" data-lock-note>잠금이 걸려 있어 이 화면의 설정을 변경할 수 없습니다. 우측 상단의 "검증된 설정만 쓰기"를 눌러 잠금을 해제하세요.</p>
-        <article class="panel eq-panel"><div class="eq-bars" data-eq-bars></div><div class="eq-axis"><span>01</span><span>02</span><span>03</span><span>04</span><span>05</span><span>06</span><span>07</span><span>08</span><span>09</span><span>10</span></div></article></section>
-      <section class="view" data-view-panel="about"><div class="page-heading"><div><h1>정보 및 디버그</h1><p>Linux용 WH-1000XM6 제어 앱</p></div></div>
+
+      <section class="view" data-view-panel="about">
+        <div class="page-heading"><h1>정보 및 디버그</h1><p>Linux용 WH-1000XM6 제어 앱</p></div>
         <nav class="subtabs" aria-label="정보 하위 메뉴">
           <button type="button" class="subtab active" data-subtab="info">정보</button>
           <button type="button" class="subtab" data-subtab="debug">디버그</button>
@@ -82,6 +132,11 @@
         </nav>
         <div class="subview active" data-subview="info">
           <article class="panel about-panel"><span class="brand-mark big"><i></i><i></i><i></i></span><h2>Sonus 0.1.0</h2><p>실기기에서 변경과 원복을 확인한 설정만 활성화됩니다. ANC와 안전 청취 항목은 정확한 원상 복원을 보장할 수 없어 조회 전용입니다.</p><dl><div><dt>인터페이스</dt><dd>PyQt6 · Qt WebEngine</dd></div></dl></article>
+          <h2 class="section-group">연결 정보</h2>
+          <article class="panel info-grid">
+            <button type="button" class="mask-toggle" data-mask-toggle title="Bluetooth 주소·RFCOMM 채널 표시 또는 숨기기"><svg><use href="assets/lucide.svg#lock"/></svg></button>
+            <div><small>Bluetooth 주소</small><strong class="mono" data-current-mac>—</strong></div><div><small>RFCOMM 채널</small><strong data-current-channel>—</strong></div><div><small>DSEE Extreme</small><strong data-feature="dsee">—</strong></div>
+          </article>
         </div>
         <div class="subview" data-subview="debug">
           <article class="panel debug-panel">
@@ -103,11 +158,17 @@
             <p>잠금을 해제하면 실기기에서 검증된 설정(DSEE, Speak-to-Chat, 이퀄라이저, Bluetooth 연결 모드 등)을 직접 변경할 수 있습니다. 노이즈 제어·안전 청취처럼 검증되지 않은 항목은 해제 후에도 계속 조회 전용으로 남습니다.</p>
             <p>Sonus는 Sony의 공식 소프트웨어가 아닙니다. 변경이 제대로 반영되지 않거나 기기를 재시작해야 적용되는 경우가 있을 수 있습니다. 개발·상태 확인 목적으로만 사용하는 것을 권장합니다.</p>
             <ul><li>변경값은 적용 후 다시 읽어 확인합니다.</li><li>전원 끄기·초기화·페어링·펌웨어 기능은 실행하지 않습니다.</li></ul>
-            <p class="disclaimer-meta">이 안내는 우측 상단의 "검증된 설정만 쓰기" 배지를 눌러 잠금을 해제할 때마다 표시됩니다. 이 탭에서는 잠금을 해제하지 않고도 언제든 다시 확인할 수 있습니다.</p>
+            <p class="disclaimer-meta">이 안내는 상단의 "검증된 설정만 쓰기" 배지를 눌러 잠금을 해제할 때마다 표시됩니다. 이 탭에서는 잠금을 해제하지 않고도 언제든 다시 확인할 수 있습니다.</p>
           </article>
         </div>
       </section>
     </main>
+    <nav class="tabbar" aria-label="주 메뉴">
+      <button class="tab-link active" data-view="status"><svg><use href="assets/lucide.svg#activity"/></svg><span>상태</span></button>
+      <button class="tab-link" data-view="sound"><svg><use href="assets/lucide.svg#volume-2"/></svg><span>사운드</span></button>
+      <button class="tab-link" data-view="device"><svg><use href="assets/lucide.svg#settings"/></svg><span>기기 설정</span></button>
+      <button class="tab-link" data-view="about"><svg><use href="assets/lucide.svg#info"/></svg><span>정보</span></button>
+    </nav>
   </div>
   <div class="overlay" data-disclaimer><section class="dialog"><svg class="dialog-icon"><use href="assets/lucide.svg#shield-check"/></svg><h1>설정 변경 전 확인</h1><p>Sonus는 실측으로 검증한 설정만 변경하지만 비공식 Linux 드라이버입니다. 설정 변경 중 Bluetooth 연결이 끊기거나 기기 동작이 달라질 수 있습니다.</p><ul><li>변경값은 적용 후 다시 읽어 확인합니다.</li><li>전원 끄기·초기화·페어링·펌웨어 기능은 실행하지 않습니다.</li></ul><div class="dialog-actions"><button class="secondary" data-disclaimer-reject>동의하지 않고 종료</button><button class="primary" data-disclaimer-accept>확인하고 계속</button></div></section></div>
   <div class="overlay hidden" data-connect-overlay><form class="dialog" data-connect-form><svg class="dialog-icon"><use href="assets/lucide.svg#headphones"/></svg><h1>헤드셋 연결</h1><p>저장했거나 Bluetooth에 등록된 기기를 선택하세요.</p><label>등록된 기기<select name="saved" data-device-select><option value="">직접 입력</option></select></label><button type="button" class="secondary full" data-scan>기기 목록 새로고침</button><label>Bluetooth 주소<input name="mac" value="58:18:62:1F:C9:CB" required pattern="[0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5}"></label><label>RFCOMM 채널<input name="channel" type="number" value="9" min="1" max="30" required></label><button class="primary full" type="submit">연결</button></form></div>
