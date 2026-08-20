@@ -10,7 +10,6 @@ dependencies = [
 ]
 
 [project.scripts]
-sonus = "sonus.cli.main:main"
 sonus-gui = "sonus.gui.main:main"
 
 [dependency-groups]
@@ -23,7 +22,7 @@ markers = [
     "hardware: requires a connected WH-1000XM6 (run with -m hardware)",
 ]
 addopts = "-m \"not hardware\""
-testpaths = ["tests"]
+testpaths = ["tests", "test_tool/tests"]
 
 [build-system]
 requires = ["hatchling"]

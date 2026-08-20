@@ -1,7 +1,7 @@
 import pytest
 
-from sonus.cli.main import DEFAULT_SERVICE_UUID
-from sonus.cli.probe import run_probe
+from test_tool.cli.main import DEFAULT_SERVICE_UUID
+from test_tool.cli.probe import run_probe
 from sonus.device import SonyXm6Device
 from sonus.protocol.session import ProtocolSession
 from sonus.transport.rfcomm import connect_with_retries

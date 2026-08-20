@@ -1,4 +1,4 @@
-# src/sonus/cli/send.py
+# test_tool/cli/send.py
 from __future__ import annotations
 
 from sonus.protocol.session import ProtocolSession

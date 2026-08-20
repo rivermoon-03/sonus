@@ -1,4 +1,4 @@
-# src/sonus/cli/probe.py
+# test_tool/cli/probe.py
 from __future__ import annotations
 
 from sonus.protocol.framing import DATA_TYPE_MDR

@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from sonus.cli.sniff import run_sniff
+from test_tool.cli.sniff import run_sniff
 
 
 class _FakeConnection:

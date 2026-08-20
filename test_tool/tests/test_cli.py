@@ -1,7 +1,7 @@
 import json
 
-from sonus.cli import main as cli_main
-from sonus.cli.device import format_results, parse_value, run_set
+from test_tool.cli import main as cli_main
+from test_tool.cli.device import format_results, parse_value, run_set
 from sonus.device.xm6 import FeatureResult
 from sonus.protocol.session import ProtocolTimeoutError
 
@@ -118,7 +118,7 @@ def test_run_set_uses_verified_write(monkeypatch):
         def __exit__(self, *args):
             return None
 
-    monkeypatch.setattr("sonus.cli.device._open_device", lambda *args, **kwargs: Context())
+    monkeypatch.setattr("test_tool.cli.device._open_device", lambda *args, **kwargs: Context())
 
     run_set("AA", 9, "connection_mode", "stable_connection", as_json=True)
 
