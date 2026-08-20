@@ -238,8 +238,8 @@ class SonusWindow(QMainWindow):
         self._really_quit = False
         self.setWindowTitle("Sonus · WH-1000XM6")
         self.setWindowIcon(application_icon())
-        self.resize(1180, 780)
-        self.setMinimumSize(800, 620)
+        self.resize(400, 760)
+        self.setMinimumSize(360, 620)
         if geometry := settings.window_geometry:
             self.restoreGeometry(geometry)
 

@@ -19,7 +19,7 @@ def test_gui_web_bundle_contains_required_assets():
     assert "qrc:///qtwebchannel/qwebchannel.js" in html
     assert "설정 변경 전 확인" in html
     assert "assets/lucide.svg#" in html
-    assert '<button class="nav-link active" data-view="status"><svg' in html
+    assert '<button class="tab-link active" data-view="status"><svg' in html
     assert ">01</span>상태" not in html
     assert "wh-1000xm6-black.png" not in html
 
